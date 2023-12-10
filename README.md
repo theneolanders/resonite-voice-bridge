@@ -4,9 +4,30 @@ This application enables the use of Speech-To-Text in Resonite, by bridging Goog
 
 ## Usage
 
-Launch the server executable, then open http://localhost:5000/ in Google Chrome. Grant the microphone permission and test the interface by speaking. You should see page saying the websocket is connected and text appearing.
+Launch the server executable, then open http://localhost:5000/ in Google Chrome. Grant the microphone permission and test the interface by speaking. You should see page saying the microhone is listening, the websocket is connected and your spoken text appearing.
 
-In Resonite, create a websocket connection to ws://localhost:6789/. Any speech the page detects will be sent to this websocket.
+In Resonite, use the Websocket Connect node to create a websocket connection to ws://localhost:6789/. Any speech the page detects will be sent to this websocket.
+
+Use the Websocket Message Received node to receive real-time updates from the speech recognition.
+
+## Commands and Events
+
+The application supports commands and events to toggle and monitor the state of the microphone.
+
+It is advised to disable the microphone access when not actively in use, as anything you say while the page is open and microphone is active is being sent to Google's servers.
+
+You can send the following commands to the websocket connection to control the microphone state:
+
+* _toggle_ - Toggles the microphone on and off
+* _enable_ - Enables the microphone
+* _disable_ - Disables the microphone
+
+The server will send the following event messages when the microphone status changes:
+
+* ^enabled^ - The microphone has been enabled
+* ^disabled^ - The microhone has been disabled
+
+Note the _ and ^ characters in the sent and received messages to simplify Protoflux parsing.
 
 ## How it works
 
@@ -22,7 +43,7 @@ The text from the speech recognition API is streamed in real-time, rather than w
 
 For example saying "This is a test" resulted in 6 messages sent to the websocket:
 
-![image](https://github.com/theneolanders/resonite-voice-bridge/assets/3112763/b9a624f5-7987-40a2-a8ac-39531735ced6) 
+![image](https://github.com/theneolanders/resonite-voice-bridge/assets/3112763/b9a624f5-7987-40a2-a8ac-39531735ced6)
 
 If you're not getting speech transcription in the webpage, make sure Chrome is listening to the correct input device:
 
