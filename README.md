@@ -2,15 +2,17 @@
 
 This application enables the use of Speech-To-Text in Resonite, by bridging Google Chrome's STT API with a Websocket server.
 
+This enables the creation of tools like real-time captioning, or voice controlled objects.
+
 ## Download
 
 The latest version can be found on the [releases page](https://github.com/theneolanders/resonite-voice-bridge/releases).
 
 ## Usage
 
-Launch the server executable, then open http://localhost:5000/ in Google Chrome. Grant the microphone permission and test the interface by speaking. You should see page saying the microhone is listening, the websocket is connected and your spoken text appearing.
+Launch the server executable, then open http://localhost:5000/ in Google Chrome. Grant the microphone permission and test the interface by speaking. You should see page saying the microhone is listening, the websocket is connected, and your spoken text appearing.
 
-In Resonite, use the Websocket Connect node to create a websocket connection to ws://localhost:6789/. Any speech the page detects will be sent to this websocket.
+In Resonite, use the Websocket Connect node to create a websocket connection to ws://localhost:6789. Any speech the page detects will be sent to this connection.
 
 Use the Websocket Message Received node to receive real-time updates from the speech recognition.
 
@@ -18,13 +20,15 @@ Use the Websocket Message Received node to receive real-time updates from the sp
 
 The application supports commands and events to toggle and monitor the state of the microphone.
 
-It is advised to disable the microphone access when not actively in use, as anything you say while the page is open and microphone is active is being sent to Google's servers.
+It is advised to disable the microphone access when not actively in use, as anything you say while the page is open and the microphone is active is being sent to Google's servers.
+
+Note that the microphone controls for this application are separate from Resonite. You can have your Resonite mic open and the application muted, or vice-versa.
 
 You can send the following commands to the websocket connection to control the microphone state:
 
-* _toggle_ - Toggles the microphone on and off
-* _enable_ - Enables the microphone
-* _disable_ - Disables the microphone
+* \_toggle_ - Toggles the microphone on and off
+* \_enable_ - Enables the microphone
+* \_disable_ - Disables the microphone
 
 The server will send the following event messages when the microphone status changes:
 
@@ -35,7 +39,7 @@ Note the _ and ^ characters in the sent and received messages to simplify Protof
 
 ## How it works
 
-Internally the script is hosting both a webserver for the interface, and a websocket server for Resonite to connect to.
+Internally the script is hosting both a webserver for the interface and a websocket server for Resonite to connect to.
 
 The page you load uses Javascript to utilize Google's SpeechRecognition API via Chrome, and then sends that information to the websocket server.
 
