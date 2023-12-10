@@ -29,11 +29,31 @@ You can send the following commands to the websocket connection to control the m
 * \_toggle_ - Toggles the microphone on and off
 * \_enable_ - Enables the microphone
 * \_disable_ - Disables the microphone
+* \_lang=language-code_ - Changes the language. Example: \_lang=en-US_. Supports the following language codes:
+    * en-US - English (United States)
+    * en-GB - English (United Kingdom)
+    * es-ES - Spanish (Spain)
+    * es-MX - Spanish (Mexico)
+    * fr-FR - French (France)
+    * de-DE - German (Germany)
+    * it-IT - Italian (Italy)
+    * pt-PT - Portuguese (Portugal)
+    * pt-BR - Portuguese (Brazil)
+    * ru-RU - Russian (Russia)
+    * zh-CN - Chinese (Simplified, China)
+    * zh-TW - Chinese (Traditional, Taiwan)
+    * ja-JP - Japanese (Japan)
+    * ko-KR - Korean (South Korea)
+    * ar-SA - Arabic (Saudi Arabia)
+    * hi-IN - Hindi (India)
+
+You can add new languages by modifying the JS and HTML files located in `_internal/static` and `_internal/templates`. Any BCP 47 lanuage tag Google supports should work.
 
 The server will send the following event messages when the microphone status changes:
 
 * ^enabled^ - The microphone has been enabled
 * ^disabled^ - The microhone has been disabled
+* ^lang=language-code^ - The language has been changed to `language-code`. Example: ^lang=en-US^
 
 Note the _ and ^ characters in the sent and received messages to simplify Protoflux parsing.
 

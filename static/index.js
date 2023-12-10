@@ -4,6 +4,8 @@ var micEnabled = false;
 var recognition;
 var websocket;
 const toggleMicButton = document.getElementById('toggleMicBtn');
+const langSelect = document.getElementById('languageSelect');
+var selectedLanguage = 'en-US';
 
 function init() {
   output = document.getElementById("output");
@@ -33,6 +35,7 @@ function init() {
   });
 
   toggleMicButton.addEventListener('click', toggleMic);
+  document.getElementById('languageSelect').addEventListener('change', changeLanguage);
 
   checkMicrophoneAccess();
 }
@@ -53,16 +56,30 @@ function checkMicrophoneAccess() {
     });
 }
 
+function changeLanguage() {
+  const micWasEnabled = micEnabled;
+  if (micEnabled) toggleMic();
+  recognition.lang = langSelect.value;
+  websocket.send("^lang=" + langSelect.value + "^");
+  const timeout = setTimeout(() => {
+    if (micWasEnabled) toggleMic();
+    clearTimeout(timeout);
+  }, 1000);
+}
+
 function toggleMic() {
   micEnabled = !micEnabled;
   updateMic();
 }
 
 function updateMic() {
-  if (micEnabled) recognition.start();
+  if (micEnabled) {
+    recognition.lang = langSelect.value;
+    recognition.start();
+  }
   else recognition.stop();
   document.getElementById("micStatus").innerHTML = micEnabled ? '<span style="color: green;">Listening</span>' : '<span style="color: red;">Not Listening</span>';
-  websocket.send(micEnabled ? "^enabled^" : "^disabled^");
+  websocket.send(micEnabled ? "^enabled^ " : "^disabled^");
 }
 
 function onOpen(event) {
@@ -77,6 +94,11 @@ function onMessage(event) {
   } else if (event.data === "_disable_") {
     micEnabled = false;
     updateMic();
+  } else if (event.data.startsWith('_lang=') && event.data.endsWith('_')) {
+    const langCode = event.data.substring(6, event.data.length - 1);
+    selectedLanguage = langCode;
+    langSelect.value = selectedLanguage;
+    changeLanguage();
   }
 }
 

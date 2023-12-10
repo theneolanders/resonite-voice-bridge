@@ -58,6 +58,27 @@
     </header>
     <p class="status">Websocket Status: <span id="websocketStatus">Disconnected</span></p>
     <p class="status">Microphone: <span id="micStatus">Waiting for permission</span></p>
+    <p class="status">Language:
+        <select id="languageSelect">
+            <option value="en-US">English (United States)</option>
+            <option value="en-GB">English (United Kingdom)</option>
+            <option value="es-ES">Spanish (Spain)</option>
+            <option value="es-MX">Spanish (Mexico)</option>
+            <option value="fr-FR">French (France)</option>
+            <option value="de-DE">German (Germany)</option>
+            <option value="it-IT">Italian (Italy)</option>
+            <option value="pt-PT">Portuguese (Portugal)</option>
+            <option value="pt-BR">Portuguese (Brazil)</option>
+            <option value="ru-RU">Russian (Russia)</option>
+            <option value="zh-CN">Chinese (Simplified, China)</option>
+            <option value="zh-TW">Chinese (Traditional, Taiwan)</option>
+            <option value="ja-JP">Japanese (Japan)</option>
+            <option value="ko-KR">Korean (South Korea)</option>
+            <option value="ar-SA">Arabic (Saudi Arabia)</option>
+            <option value="hi-IN">Hindi (India)</option>
+        </select>
+    </p>
+    <p style="font-style: italic;">Note: Changing languages will temporarily disable the microphone, automatically re-enabling it if it was already enabled.</p>
     <p class="status" id="error"></p>
     <button id="toggleMicBtn">Toggle Microphone</button>
     <div class="output">
@@ -65,21 +86,87 @@
         <p id="sttOutput"></p>
     </div>
     <h3>Usage</h3>
-    <p>This page will send any detected speech to a websocket at the following url: <strong>ws://localhost:6789</strong></p>
+    <p>This page will send any detected speech to a websocket at the following url: <strong>ws://localhost:6789</strong>
+    </p>
     <p>You can send the following commands to the websocket to control the microphone:</p>
     <ul>
         <li><strong>_toggle_</strong>: Toggles the microphone on and off</li>
         <li><strong>_enable_</strong>: Enables the microphone</li>
         <li><strong>_disable_</strong>: Disables the microphone</li>
+        <li><strong>_lang=language-code_</strong>: Changes the language. Example: _lang=en-US_. Supports the following language
+        codes:</li>
+        <ul>
+            <li>en-US - English (United States)</li>
+            <li>en-GB - English (United Kingdom)</li>
+            <li>es-ES - Spanish (Spain)</li>
+            <li>es-MX - Spanish (Mexico)</li>
+            <li>fr-FR - French (France)</li>
+            <li>de-DE - German (Germany)</li>
+            <li>it-IT - Italian (Italy)</li>
+            <li>pt-PT - Portuguese (Portugal)</li>
+            <li>pt-BR - Portuguese (Brazil)</li>
+            <li>ru-RU - Russian (Russia)</li>
+            <li>zh-CN - Chinese (Simplified, China)</li>
+            <li>zh-TW - Chinese (Traditional, Taiwan)</li>
+            <li>ja-JP - Japanese (Japan)</li>
+            <li>ko-KR - Korean (South Korea)</li>
+            <li>ar-SA - Arabic (Saudi Arabia)</li>
+            <li>hi-IN - Hindi (India)</li>
+        </ul>
     </ul>
     <p>The server will send the following event messages when the microphone status changes:
     <ul>
         <li><strong>^enabled^</strong>: The microphone has been enabled</li>
         <li><strong>^disabled^</strong>: The microphone has been disabled</li>
+        <li><strong>^lang=language-code^</strong></li>: The language has been changed to <em>language-code</em>. Example: ^lang=en-US^</li>
     </ul>
     <p>Note the _ and ^ characters in the sent and received messages to simplify Protoflux parsing.</p>
+    <p>You can add new languages by modifying the JS and HTML files located in _internal/static and _internal/templates. Any BCP 47 lanuage tag Google supports should work.</p>
     <script type="text/javascript" src="/static/index.js"></script>
-    <a href="https://github.com/theneolanders/resonite-voice-bridge/" class="github-corner" aria-label="View source on GitHub"><svg width="80" height="80" viewBox="0 0 250 250" style="fill:#151513; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
+    <a href="https://github.com/theneolanders/resonite-voice-bridge/" class="github-corner"
+        aria-label="View source on GitHub"><svg width="80" height="80" viewBox="0 0 250 250"
+            style="fill:#151513; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true">
+            <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+            <path
+                d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
+                fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+            <path
+                d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
+                fill="currentColor" class="octo-body"></path>
+        </svg></a>
+    <style>
+        .github-corner:hover .octo-arm {
+            animation: octocat-wave 560ms ease-in-out
+        }
+
+        @keyframes octocat-wave {
+
+            0%,
+            100% {
+                transform: rotate(0)
+            }
+
+            20%,
+            60% {
+                transform: rotate(-25deg)
+            }
+
+            40%,
+            80% {
+                transform: rotate(10deg)
+            }
+        }
+
+        @media (max-width:500px) {
+            .github-corner:hover .octo-arm {
+                animation: none
+            }
+
+            .github-corner .octo-arm {
+                animation: octocat-wave 560ms ease-in-out
+            }
+        }
+    </style>
 </body>
 
 </html>
