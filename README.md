@@ -33,3 +33,5 @@ If you're not getting speech transcription in the webpage, make sure Chrome is l
 Install the pyinstaller package and then run it against server.py
 
 `pip install pyinstaller && pyinstaller server.py`
+
+Then copy the `static` and `templates` folders into the `_internal` folder in the `dist` output
