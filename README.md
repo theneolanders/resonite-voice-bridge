@@ -22,4 +22,9 @@ The text from the speech recognition API is streamed in real-time, rather than w
 
 For example saying "This is a test" resulted in 6 messages sent to the websocket:
 
-![image](https://github.com/theneolanders/resonite-voice-bridge/assets/3112763/b9a624f5-7987-40a2-a8ac-39531735ced6)
+![image](https://github.com/theneolanders/resonite-voice-bridge/assets/3112763/b9a624f5-7987-40a2-a8ac-39531735ced6) 
+
+If you're not getting speech transcription in the webpage, make sure Chrome is listening to the correct input device:
+
+![image](https://github.com/theneolanders/resonite-voice-bridge/assets/3112763/25ea18ba-35d9-470a-b68e-68c06fc3983a)
+
