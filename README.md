@@ -58,3 +58,7 @@ Install the pyinstaller package and then run it against server.py
 `pip install pyinstaller && pyinstaller server.py`
 
 Then copy the `static` and `templates` folders into the `_internal` folder in the `dist` output
+
+# Disclaimer
+
+This project is in no way affiliated with by Resonite or any member of its staff.
