@@ -62,7 +62,7 @@ function updateMic() {
   if (micEnabled) recognition.start();
   else recognition.stop();
   document.getElementById("micStatus").innerHTML = micEnabled ? '<span style="color: green;">Listening</span>' : '<span style="color: red;">Not Listening</span>';
-  websocket.send(micEnabled ? "<enabled>" : "<disabled>");
+  websocket.send(micEnabled ? "^enabled^" : "^disabled^");
 }
 
 function onOpen(event) {
@@ -70,11 +70,11 @@ function onOpen(event) {
 }
 
 function onMessage(event) {
-  if (event.data === "<toggle>") toggleMic();
-  else if (event.data === "<enable>") {
+  if (event.data === "_toggle_") toggleMic();
+  else if (event.data === "_enable_") {
     micEnabled = true;
     updateMic();
-  } else if (event.data === "<disable>") {
+  } else if (event.data === "_disable_") {
     micEnabled = false;
     updateMic();
   }
