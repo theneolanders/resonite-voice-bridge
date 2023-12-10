@@ -41,7 +41,7 @@ The page you load uses Javascript to utilize Google's SpeechRecognition API via 
 
 The websocket server is configured to echo any message it receives back to all other connected clients.
 
-## Trouebleshooting
+## Troubleshooting
 
 The text from the speech recognition API is streamed in real-time, rather than waiting for a pause and then sending the entire captured string. Due to the way Google's speech recognition works this will result in excessive messages.
 
