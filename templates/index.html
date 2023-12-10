@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resonite Voice Bridge</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            padding: 20px;
+            color: #333;
+        }
+        header {
+            background-color: #830071;
+            color: white;
+            padding: 10px 0;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .status {
+            font-weight: bold;
+        }
+        .output {
+            background-color: white;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Resonite Voice Bridge</h1>
+    </header>
+    <p class="status">Websocket Status: <span id="websocketStatus">Disconnected</span></p>
+    <p>This page will send any detected speech to a websocket at the following url: <strong>ws://localhost:6789</strong></p>
+    <div class="output">
+        <h3>Speech Output:</h3>
+        <p id="sttOutput"></p>
+    </div>
+    <script type="text/javascript" src="/static/index.js"></script>
+</body>
+</html>
