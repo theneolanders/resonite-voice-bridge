@@ -16,7 +16,7 @@ The page you load uses Javascript to utilize Google's SpeechRecognition API via 
 
 The websocket server is configured to echo any message it receives back to all other connected clients.
 
-## Notes
+## Trouebleshooting
 
 The text from the speech recognition API is streamed in real-time, rather than waiting for a pause and then sending the entire captured string. Due to the way Google's speech recognition works this will result in excessive messages.
 
@@ -27,6 +27,8 @@ For example saying "This is a test" resulted in 6 messages sent to the websocket
 If you're not getting speech transcription in the webpage, make sure Chrome is listening to the correct input device:
 
 ![image](https://github.com/theneolanders/resonite-voice-bridge/assets/3112763/25ea18ba-35d9-470a-b68e-68c06fc3983a)
+
+Additionally try testing the Chrome speech API on a different site to verify it's working: https://mdn.github.io/dom-examples/web-speech-api/speech-color-changer/
 
 ## Building the executable
 
