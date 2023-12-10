@@ -114,11 +114,11 @@
             <li>hi-IN - Hindi (India)</li>
         </ul>
     </ul>
-    <p>The server will send the following event messages when the microphone status changes:
+    <p>The server will send the following event messages when the microphone or language status changes:
     <ul>
         <li><strong>^enabled^</strong>: The microphone has been enabled</li>
         <li><strong>^disabled^</strong>: The microphone has been disabled</li>
-        <li><strong>^lang=language-code^</strong></li>: The language has been changed to <em>language-code</em>. Example: ^lang=en-US^</li>
+        <li><strong>^lang=language-code^</strong>: The language has been changed to <em>language-code</em>. Example: ^lang=en-US^</li>
     </ul>
     <p>Note the _ and ^ characters in the sent and received messages to simplify Protoflux parsing.</p>
     <p>You can add new languages by modifying the JS and HTML files located in _internal/static and _internal/templates. Any BCP 47 lanuage tag Google supports should work.</p>
