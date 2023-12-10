@@ -60,12 +60,24 @@
     <p class="status">Microphone: <span id="micStatus">Waiting for permission</span></p>
     <p class="status" id="error"></p>
     <button id="toggleMicBtn">Toggle Microphone</button>
-    <p>This page will send any detected speech to a websocket at the following url: <strong>ws://localhost:6789</strong>
-    </p>
     <div class="output">
         <h3>Speech Output:</h3>
         <p id="sttOutput"></p>
     </div>
+    <h3>Usage</h3>
+    <p>This page will send any detected speech to a websocket at the following url: <strong>ws://localhost:6789</strong></p>
+    <p>You can send the following commands to the websocket to control the microphone:</p>
+    <ul>
+        <li><strong>_toggle_</strong>: Toggles the microphone on and off</li>
+        <li><strong>_enable_</strong>: Enables the microphone</li>
+        <li><strong>_disable_</strong>: Disables the microphone</li>
+    </ul>
+    <p>The server will send the following messages when the microphone status changes:
+    <ul>
+        <li><strong>^enabled^</strong>: The microphone has been enabled</li>
+        <li><strong>^disabled^</strong>: The microphone has been disabled</li>
+    </ul>
+    <p>Note the _ and ^ characters in the sent and received messages to simplify Protoflux parsing.</p>
     <script type="text/javascript" src="/static/index.js"></script>
 </body>
 
