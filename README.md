@@ -2,6 +2,10 @@
 
 This application enables the use of Speech-To-Text in Resonite, by bridging Google Chrome's STT API with a Websocket server.
 
+## Download
+
+The latest version can be found on the [releases page](https://github.com/theneolanders/resonite-voice-bridge/releases).
+
 ## Usage
 
 Launch the server executable, then open http://localhost:5000/ in Google Chrome. Grant the microphone permission and test the interface by speaking. You should see page saying the microhone is listening, the websocket is connected and your spoken text appearing.
