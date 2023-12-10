@@ -28,3 +28,8 @@ If you're not getting speech transcription in the webpage, make sure Chrome is l
 
 ![image](https://github.com/theneolanders/resonite-voice-bridge/assets/3112763/25ea18ba-35d9-470a-b68e-68c06fc3983a)
 
+## Building the executable
+
+Install the pyinstaller package and then run it against server.py
+
+`pip install pyinstaller && pyinstaller server.py`
