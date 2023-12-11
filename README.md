@@ -18,13 +18,15 @@ Use the Websocket Message Received node to receive real-time updates from the sp
 
 ## Commands and Events
 
-The application supports commands and events to toggle and monitor the state of the microphone.
+The application supports commands and events to toggle and monitor the microphone state as well as other settings.
 
 It is advised to disable the microphone access when not actively in use, as anything you say while the page is open and the microphone is active is being sent to Google's servers.
 
 Note that the microphone controls for this application are separate from Resonite. You can have your Resonite mic open and the application muted, or vice-versa.
 
-You can send the following commands to the websocket connection to control the microphone state:
+### Commands
+
+You can send the following commands to the websocket connection to control the microphone state and other settings:
 
 * **toggle** - Toggles the microphone on and off
 * **enable** - Enables the microphone
@@ -52,7 +54,9 @@ You can send the following commands to the websocket connection to control the m
 
 You can add new languages by modifying the JS and HTML files located in `_internal/static` and `_internal/templates`. Any BCP 47 lanuage tag Google supports should work.
 
-The server will send the following event messages when the microphone status changes:
+### Events
+
+The server will send the following event messages when the the microphone state or an option changes:
 
 * **[enabled]** - The microphone has been enabled
 * **[disabled]** - The microhone has been disabled
