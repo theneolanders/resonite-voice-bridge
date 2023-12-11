@@ -1,11 +1,14 @@
-var url = "ws://localhost:6789";
-var output;
-var micEnabled = false;
-var recognition;
-var websocket;
+let url = "ws://localhost:6789";
+let output;
+let micEnabled = false;
+let recognition;
+let websocket;
 const toggleMicButton = document.getElementById('toggleMicBtn');
 const langSelect = document.getElementById('languageSelect');
-var selectedLanguage = 'en-US';
+let selectedLanguage = 'en-US';
+let transcript = '';
+let manuallyCleared = false;
+let clearedSection = '';
 
 function init() {
   output = document.getElementById("output");
@@ -16,28 +19,24 @@ function init() {
   websocket.onerror = function (e) { onError(e); };
   websocket.onclose = function (e) { onClose(e); };
 
-  window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  recognition = new SpeechRecognition();
-  recognition.interimResults = true;
-
-  recognition.addEventListener('result', e => {
-    const transcript = Array.from(e.results)
-      .map(result => result[0])
-      .map(result => result.transcript)
-      .join('');
-
-    document.getElementById("sttOutput").innerHTML = transcript;
-    websocket.send(transcript);
-  });
-
-  recognition.addEventListener('end', () => {
-    if (micEnabled) recognition.start();
-  });
+  initializeRecognition();
 
   toggleMicButton.addEventListener('click', toggleMic);
   document.getElementById('languageSelect').addEventListener('change', changeLanguage);
+  document.getElementById('clearBtn').addEventListener('click', clearTranscript);
 
   checkMicrophoneAccess();
+}
+
+function initializeRecognition() {
+  window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  recognition = new SpeechRecognition();
+  recognition.lang = langSelect.value;
+  recognition.interimResults = true;
+  recognition.continuous = false; // Required to receive the end event for more accurate deduplication
+  transcript = '';
+  recognition.addEventListener('result', onSpeechRecognized);
+  recognition.addEventListener('end', onSpeechEnded);
 }
 
 function checkMicrophoneAccess() {
@@ -82,6 +81,24 @@ function updateMic() {
   websocket.send(micEnabled ? "[enabled] " : "[disabled]");
 }
 
+function onSpeechRecognized(e) {
+  const recognized = e.results[0][0];
+  if (recognized.transcript !== transcript && recognized.transcript.length > transcript.length) {
+    if (manuallyCleared) {
+      transcript = recognized.transcript.replace(clearedSection, '');
+    } else transcript = recognized.transcript;
+    document.getElementById("sttOutput").innerHTML = transcript;
+    websocket.send(transcript);
+  }
+}
+
+function onSpeechEnded() {
+  if (micEnabled) recognition.start();
+  transcript = '';
+  clearedSection = '';
+  manuallyCleared = false;
+}
+
 function onOpen(event) {
   document.getElementById("websocketStatus").innerHTML = '<span style="color: green;">Connected</span>';
 }
@@ -99,7 +116,14 @@ function onMessage(event) {
     selectedLanguage = langCode;
     langSelect.value = selectedLanguage;
     changeLanguage();
-  }
+  } else if (event.data === 'clear') clearTranscript();
+}
+
+function clearTranscript() {
+  clearedSection = transcript;
+  manuallyCleared = true;
+  document.getElementById("sttOutput").innerHTML = '';
+  websocket.send("[cleared]");
 }
 
 function onError(event) {

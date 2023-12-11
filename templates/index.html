@@ -32,8 +32,7 @@
             margin-bottom: 20px;
         }
 
-        #toggleMicBtn {
-            background-color: #333333;
+        .btn {
             border: none;
             color: white;
             padding: 10px 15px;
@@ -46,8 +45,20 @@
             border-radius: 8px;
         }
 
-        #toggleMicBtn:focus {
+        .btn:hover {
+            opacity: 0.8;
+        }
+
+        .btn:focus {
             outline: none;
+        }
+
+        #toggleMicBtn {
+            background-color: #333333;
+        }
+
+        #clearBtn {
+            background-color: #666666;
         }
     </style>
 </head>
@@ -80,7 +91,8 @@
     </p>
     <p style="font-style: italic;">Note: Changing languages will temporarily disable the microphone, automatically re-enabling it if it was already enabled.</p>
     <p class="status" id="error"></p>
-    <button id="toggleMicBtn">Toggle Microphone</button>
+    <button id="toggleMicBtn" class="btn">Toggle Microphone</button>
+    <button id="clearBtn" class="btn">Clear Transcript</button>
     <div class="output">
         <h3>Speech Output:</h3>
         <p id="sttOutput"></p>
@@ -113,11 +125,13 @@
             <li>ar-SA - Arabic (Saudi Arabia)</li>
             <li>hi-IN - Hindi (India)</li>
         </ul>
+        <li><strong>clear</strong>: Forcibly clears the transcript</li>
     </ul>
     <p>The server will send the following event messages when the microphone or language status changes:
     <ul>
         <li><strong>[enabled]</strong>: The microphone has been enabled</li>
         <li><strong>[disabled]</strong>: The microphone has been disabled</li>
+        <li><strong>[cleared]</strong>: The transcript has been manually cleared</li>
         <li><strong>[lang=language-code]</strong>: The language has been changed to <em>language-code</em>. Example: [lang=en-US]</li>
     </ul>
     <p>Note the [ ] and _ characters in the events to simplify Protoflux parsing.</p>
