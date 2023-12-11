@@ -9,6 +9,8 @@ let selectedLanguage = 'en-US';
 let transcript = '';
 let manuallyCleared = false;
 let clearedSection = '';
+let debugModeEnabled = false;
+const debugModeCheckbox = document.getElementById('debugModeCheckbox');
 
 function init() {
   output = document.getElementById("output");
@@ -24,6 +26,13 @@ function init() {
   toggleMicButton.addEventListener('click', toggleMic);
   document.getElementById('languageSelect').addEventListener('change', changeLanguage);
   document.getElementById('clearBtn').addEventListener('click', clearTranscript);
+
+  debugModeCheckbox.addEventListener('change', () => {
+    debugModeEnabled = debugModeCheckbox.checked;
+    document.getElementById("confidenceValue").style.display = debugModeEnabled ? "block" : "none";
+    if (debugModeEnabled) websocket.send('[debugEnabled]');
+    else websocket.send('[debugDisabled]');
+  });
 
   checkMicrophoneAccess();
 }
@@ -90,6 +99,13 @@ function onSpeechRecognized(e) {
     document.getElementById("sttOutput").innerHTML = transcript;
     websocket.send(transcript);
   }
+
+  if (debugModeEnabled) {
+    const confidenceElement = document.getElementById("confidenceValue");
+    document.getElementById("confidenceScore").textContent = recognized.confidence.toFixed(2);
+    confidenceElement.style.display = "block";
+    websocket.send('[debugConfidence=' + recognized.confidence.toFixed(2) + ']');
+  }
 }
 
 function onSpeechEnded() {
@@ -117,6 +133,22 @@ function onMessage(event) {
     langSelect.value = selectedLanguage;
     changeLanguage();
   } else if (event.data === 'clear') clearTranscript();
+  else if (event.data === 'debugEnable') {
+    if (debugModeEnabled) return;
+    debugModeEnabled = true;
+    setDebugMode();
+  } else if (event.data === 'debugDisable') {
+    if (!debugModeEnabled) return;
+    debugModeEnabled = false;
+    setDebugMode();
+  }
+}
+
+function setDebugMode() {
+  debugModeCheckbox.checked = debugModeEnabled;
+  document.getElementById("confidenceValue").style.display = debugModeEnabled ? "block" : "none";
+  if (debugModeEnabled) websocket.send('[debugEnabled]');
+  else websocket.send('[debugDisabled]');
 }
 
 function clearTranscript() {

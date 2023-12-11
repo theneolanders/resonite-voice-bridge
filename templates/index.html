@@ -60,6 +60,47 @@
         #clearBtn {
             background-color: #666666;
         }
+
+        #debugModeCheckbox {
+            margin-left: 10px;
+            cursor: pointer;
+            height: 20px;
+            width: 20px;
+            vertical-align: middle;
+        }
+
+        #debugModeCheckbox:checked {
+            background-color: #4CAF50;
+        }
+
+        label[for="debugModeCheckbox"] {
+            cursor: pointer;
+            vertical-align: middle;
+            padding-left: 5px;
+        }
+
+        label[for="debugModeCheckbox"]:hover {
+            color: #830071;
+        }
+
+        #languageSelect {
+            padding: 8px 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: white;
+            font-size: 16px;
+            cursor: pointer;
+            outline: none;
+        }
+
+        #languageSelect:hover {
+            border-color: #830071;
+        }
+
+        #languageSelect:focus {
+            border-color: #830071;
+            box-shadow: 0 0 5px rgba(131, 0, 113, 0.3);
+        }
     </style>
 </head>
 
@@ -89,24 +130,36 @@
             <option value="hi-IN">Hindi (India)</option>
         </select>
     </p>
-    <p style="font-style: italic;">Note: Changing languages will temporarily disable the microphone, automatically re-enabling it if it was already enabled.</p>
+    <p style="font-style: italic;">Note: Changing languages will temporarily disable the microphone, automatically
+        re-enabling it if it was already enabled.</p>
     <p class="status" id="error"></p>
     <button id="toggleMicBtn" class="btn">Toggle Microphone</button>
     <button id="clearBtn" class="btn">Clear Transcript</button>
+    <label for="debugModeCheckbox" style="margin-left: 20px;">
+        <input type="checkbox" id="debugModeCheckbox">
+        Enable Debug Mode
+    </label>
     <div class="output">
         <h3>Speech Output:</h3>
         <p id="sttOutput"></p>
     </div>
+    <p id="confidenceValue" style="display: none;">Confidence: <span id="confidenceScore"></span></p>
     <h3>Usage</h3>
     <p>This page will send any detected speech to a websocket at the following url: <strong>ws://localhost:6789</strong>
     </p>
+    <h4>Commands</h4>
     <p>You can send the following commands to the websocket to control the microphone:</p>
     <ul>
         <li><strong>toggle</strong>: Toggles the microphone on and off</li>
         <li><strong>enable</strong>: Enables the microphone</li>
         <li><strong>disable</strong>: Disables the microphone</li>
-        <li><strong>lang=language-code</strong>: Changes the language. Example: lang=en-US. Supports the following language
-        codes:</li>
+        <li><strong>clear</strong>: Forcibly clears the transcript (This can be finicky to the way Google changes
+            predictions once it's more confident)</li>
+        <li><strong>debugEnable</strong>: Enables debug mode, this will trigger the display of the recognition confidence as well as debugConfidence events, see below for more information.</li>
+        <li><strong>debugDisable</strong>: Disables debug mode</li>
+        <li><strong>lang=language-code</strong>: Changes the language. Example: lang=en-US. Supports the following
+            language
+            codes:</li>
         <ul>
             <li>en-US - English (United States)</li>
             <li>en-GB - English (United Kingdom)</li>
@@ -125,17 +178,24 @@
             <li>ar-SA - Arabic (Saudi Arabia)</li>
             <li>hi-IN - Hindi (India)</li>
         </ul>
-        <li><strong>clear</strong>: Forcibly clears the transcript</li>
     </ul>
+    <h4>Events</h4>
     <p>The server will send the following event messages when the microphone or language status changes:
     <ul>
         <li><strong>[enabled]</strong>: The microphone has been enabled</li>
         <li><strong>[disabled]</strong>: The microphone has been disabled</li>
         <li><strong>[cleared]</strong>: The transcript has been manually cleared</li>
-        <li><strong>[lang=language-code]</strong>: The language has been changed to <em>language-code</em>. Example: [lang=en-US]</li>
+        <li><strong>[lang=language-code]</strong>: The language has been changed to <em>language-code</em>. Example:
+            [lang=en-US]</li>
+        <li><strong>[debugEnabled]</strong> - Debug mode has been enabled</li>
+        <li><strong>[debugDisabled]</strong> - Debug mode has been disabled</li>
+        <li><strong>[debugConfidence=confidenceValue]</strong> - When debug mode is enabled, this event will be sent in addition to
+            each recognition message with the recognition confidence for that message. Example:
+            [debugConfidence=0.92]</li>
     </ul>
     <p>Note the [ ] and _ characters in the events to simplify Protoflux parsing.</p>
-    <p>You can add new languages by modifying the JS and HTML files located in _internal/static and _internal/templates. Any BCP 47 lanuage tag Google supports should work.</p>
+    <p>You can add new languages by modifying the JS and HTML files located in _internal/static and _internal/templates.
+        Any BCP 47 lanuage tag Google supports should work.</p>
     <script type="text/javascript" src="/static/index.js"></script>
     <a href="https://github.com/theneolanders/resonite-voice-bridge/" class="github-corner"
         aria-label="View source on GitHub"><svg width="80" height="80" viewBox="0 0 250 250"
