@@ -60,7 +60,7 @@ The server will send the following event messages when the microphone status cha
 * **[lang=language-code]** - The language has been changed to `language-code`. Example: [lang=en-US]
 * **[debugEnabled]** - Debug mode has been enabled
 * **[debugDisabled]** - Debug mode has been disabled
-* **[debugConfidence=confidenceValue]** - When debug mode is enabled, this event will be sent in addition to each recognition message with the recognition confidence for that message. Example: [debugConfidence=0.929158627986908]
+* **[debugConfidence=confidenceValue]** - When debug mode is enabled, this event will be sent in addition to each recognition message with the recognition confidence for that message. Example: [debugConfidence=0.92]
 
 Note the `[` `]` and `_` characters in the events to simplify Protoflux parsing.
 
