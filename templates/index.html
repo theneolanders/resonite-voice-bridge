@@ -90,10 +90,10 @@
     </p>
     <p>You can send the following commands to the websocket to control the microphone:</p>
     <ul>
-        <li><strong>_toggle_</strong>: Toggles the microphone on and off</li>
-        <li><strong>_enable_</strong>: Enables the microphone</li>
-        <li><strong>_disable_</strong>: Disables the microphone</li>
-        <li><strong>_lang=language-code_</strong>: Changes the language. Example: _lang=en-US_. Supports the following language
+        <li><strong>toggle</strong>: Toggles the microphone on and off</li>
+        <li><strong>enable</strong>: Enables the microphone</li>
+        <li><strong>disable</strong>: Disables the microphone</li>
+        <li><strong>lang=language-code</strong>: Changes the language. Example: lang=en-US. Supports the following language
         codes:</li>
         <ul>
             <li>en-US - English (United States)</li>
@@ -116,11 +116,11 @@
     </ul>
     <p>The server will send the following event messages when the microphone or language status changes:
     <ul>
-        <li><strong>^enabled^</strong>: The microphone has been enabled</li>
-        <li><strong>^disabled^</strong>: The microphone has been disabled</li>
-        <li><strong>^lang=language-code^</strong>: The language has been changed to <em>language-code</em>. Example: ^lang=en-US^</li>
+        <li><strong>[enabled]</strong>: The microphone has been enabled</li>
+        <li><strong>[disabled]</strong>: The microphone has been disabled</li>
+        <li><strong>[lang=language-code]</strong>: The language has been changed to <em>language-code</em>. Example: [lang=en-US]</li>
     </ul>
-    <p>Note the _ and ^ characters in the sent and received messages to simplify Protoflux parsing.</p>
+    <p>Note the [ ] and _ characters in the events to simplify Protoflux parsing.</p>
     <p>You can add new languages by modifying the JS and HTML files located in _internal/static and _internal/templates. Any BCP 47 lanuage tag Google supports should work.</p>
     <script type="text/javascript" src="/static/index.js"></script>
     <a href="https://github.com/theneolanders/resonite-voice-bridge/" class="github-corner"

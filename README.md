@@ -26,10 +26,10 @@ Note that the microphone controls for this application are separate from Resonit
 
 You can send the following commands to the websocket connection to control the microphone state:
 
-* \_toggle_ - Toggles the microphone on and off
-* \_enable_ - Enables the microphone
-* \_disable_ - Disables the microphone
-* \_lang=language-code_ - Changes the language. Example: \_lang=en-US_. Supports the following language codes:
+* **toggle** - Toggles the microphone on and off
+* **enable** - Enables the microphone
+* **disable** - Disables the microphone
+* **lang=language-code** - Changes the language. Example: lang=en-US. Supports the following language codes:
     * en-US - English (United States)
     * en-GB - English (United Kingdom)
     * es-ES - Spanish (Spain)
@@ -51,11 +51,11 @@ You can add new languages by modifying the JS and HTML files located in `_intern
 
 The server will send the following event messages when the microphone status changes:
 
-* ^enabled^ - The microphone has been enabled
-* ^disabled^ - The microhone has been disabled
-* ^lang=language-code^ - The language has been changed to `language-code`. Example: ^lang=en-US^
+* **[enabled]** - The microphone has been enabled
+* **[disabled]** - The microhone has been disabled
+* **[lang=language-code]** - The language has been changed to `language-code`. Example: [lang=en-US]
 
-Note the _ and ^ characters in the sent and received messages to simplify Protoflux parsing.
+Note the `[` `]` and `_` characters in the events to simplify Protoflux parsing.
 
 ## How it works
 
