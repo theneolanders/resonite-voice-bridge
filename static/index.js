@@ -98,13 +98,11 @@ function onSpeechRecognized(e) {
     } else transcript = recognized.transcript;
     document.getElementById("sttOutput").innerHTML = transcript;
     websocket.send(transcript);
-  }
 
-  if (debugModeEnabled) {
-    const confidenceElement = document.getElementById("confidenceValue");
-    document.getElementById("confidenceScore").textContent = recognized.confidence.toFixed(2);
-    confidenceElement.style.display = "block";
-    websocket.send('[debugConfidence=' + recognized.confidence.toFixed(2) + ']');
+    if (debugModeEnabled) {
+      document.getElementById("confidenceScore").textContent = recognized.confidence.toFixed(2);
+      websocket.send('[debugConfidence=' + recognized.confidence.toFixed(2) + ']');
+    }
   }
 }
 
