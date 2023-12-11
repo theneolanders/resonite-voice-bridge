@@ -29,6 +29,9 @@ You can send the following commands to the websocket connection to control the m
 * **toggle** - Toggles the microphone on and off
 * **enable** - Enables the microphone
 * **disable** - Disables the microphone
+* **clear** - Forcibly clears the transcript (This can be finicky to the way Google changes predictions once it's more confident)
+* **debugEnable** - Enables debug mode, this will trigger the display of the recognition confidence as well as debugConfidence events, see below for more information.
+* **debugDisable** - Disables debug mode
 * **lang=language-code** - Changes the language. Example: lang=en-US. Supports the following language codes:
     * en-US - English (United States)
     * en-GB - English (United Kingdom)
@@ -53,7 +56,11 @@ The server will send the following event messages when the microphone status cha
 
 * **[enabled]** - The microphone has been enabled
 * **[disabled]** - The microhone has been disabled
+* **[cleared]** - The transcript has been manually cleared
 * **[lang=language-code]** - The language has been changed to `language-code`. Example: [lang=en-US]
+* **[debugEnabled]** - Debug mode has been enabled
+* **[debugDisabled]** - Debug mode has been disabled
+* **[debugConfidence=confidenceValue]** - When debug mode is enabled, this event will be sent in addition to each recognition message with the recognition confidence for that message. Example: [debugConfidence=0.929158627986908]
 
 Note the `[` `]` and `_` characters in the events to simplify Protoflux parsing.
 
@@ -90,3 +97,8 @@ Then copy the `static` and `templates` folders into the `_internal` folder in th
 # Disclaimer
 
 This project is in no way affiliated with by Resonite or any member of its staff.
+
+### TODO:
+
+* Implement custom confidence thresholds
+* Implement custom timeouts instead of relying on the end event
