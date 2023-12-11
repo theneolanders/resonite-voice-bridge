@@ -29,7 +29,7 @@ You can send the following commands to the websocket connection to control the m
 * **toggle** - Toggles the microphone on and off
 * **enable** - Enables the microphone
 * **disable** - Disables the microphone
-* **clear** - Forcibly clears the transcript (This can be finicky to the way Google changes predictions once it's more confident)
+* **clear** - Forcibly clears the transcript (This can be finicky due to the way Google changes predictions once it's more confident)
 * **debugEnable** - Enables debug mode, this will trigger the display of the recognition confidence as well as debugConfidence events, see below for more information.
 * **debugDisable** - Disables debug mode
 * **lang=language-code** - Changes the language. Example: lang=en-US. Supports the following language codes:
