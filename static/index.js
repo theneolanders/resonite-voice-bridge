@@ -60,7 +60,7 @@ function changeLanguage() {
   const micWasEnabled = micEnabled;
   if (micEnabled) toggleMic();
   recognition.lang = langSelect.value;
-  websocket.send("^lang=" + langSelect.value + "^");
+  websocket.send("[lang=" + langSelect.value + "]");
   const timeout = setTimeout(() => {
     if (micWasEnabled) toggleMic();
     clearTimeout(timeout);
@@ -79,7 +79,7 @@ function updateMic() {
   }
   else recognition.stop();
   document.getElementById("micStatus").innerHTML = micEnabled ? '<span style="color: green;">Listening</span>' : '<span style="color: red;">Not Listening</span>';
-  websocket.send(micEnabled ? "^enabled^ " : "^disabled^");
+  websocket.send(micEnabled ? "[enabled] " : "[disabled]");
 }
 
 function onOpen(event) {
@@ -87,15 +87,15 @@ function onOpen(event) {
 }
 
 function onMessage(event) {
-  if (event.data === "_toggle_") toggleMic();
-  else if (event.data === "_enable_") {
+  if (event.data === "toggle") toggleMic();
+  else if (event.data === "enable") {
     micEnabled = true;
     updateMic();
-  } else if (event.data === "_disable_") {
+  } else if (event.data === "disable") {
     micEnabled = false;
     updateMic();
-  } else if (event.data.startsWith('_lang=') && event.data.endsWith('_')) {
-    const langCode = event.data.substring(6, event.data.length - 1);
+  } else if (event.data.startsWith('lang=')) {
+    const langCode = event.data.substring(5, event.data.length);
     selectedLanguage = langCode;
     langSelect.value = selectedLanguage;
     changeLanguage();
