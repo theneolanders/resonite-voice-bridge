@@ -11,6 +11,12 @@ let manuallyCleared = false;
 let clearedSection = '';
 let debugModeEnabled = false;
 const debugModeCheckbox = document.getElementById('debugModeCheckbox');
+const confidenceThresholdContainer = document.getElementById('confidenceThresholdContainer');
+const confidenceThresholdCheckbox = document.getElementById('confidenceThresholdCheckbox');
+const confidenceThresholdInput = document.getElementById('confidenceThresholdInput');
+let useConfidenceThreshold = false;
+let confidenceThreshold = 0;
+
 
 function init() {
   output = document.getElementById("output");
@@ -32,6 +38,18 @@ function init() {
     document.getElementById("confidenceValue").style.display = debugModeEnabled ? "block" : "none";
     if (debugModeEnabled) websocket.send('[debugEnabled]');
     else websocket.send('[debugDisabled]');
+  });
+
+  confidenceThresholdCheckbox.addEventListener('change', () => {
+    useConfidenceThreshold = confidenceThresholdCheckbox.checked;
+    setUseConfidenceThreshold();
+  });
+
+  confidenceThresholdInput.addEventListener('input', () => {
+    const prevValue = confidenceThreshold;
+    if (prevValue === parseFloat(confidenceThresholdInput.value)) return;
+    confidenceThreshold = parseFloat(confidenceThresholdInput.value);
+    if (!isNaN(confidenceThreshold)) websocket.send('[setConfidence=' + confidenceThreshold + ']');
   });
 
   checkMicrophoneAccess();
@@ -92,6 +110,8 @@ function updateMic() {
 
 function onSpeechRecognized(e) {
   const recognized = e.results[0][0];
+  document.getElementById("confidenceScore").textContent = recognized.confidence.toFixed(2);
+  if (useConfidenceThreshold && recognized.confidence < confidenceThreshold) return;
   if (recognized.transcript !== transcript && recognized.transcript.length > transcript.length) {
     if (manuallyCleared) {
       transcript = recognized.transcript.replace(clearedSection, '');
@@ -99,10 +119,7 @@ function onSpeechRecognized(e) {
     document.getElementById("sttOutput").innerHTML = transcript;
     websocket.send(transcript);
 
-    if (debugModeEnabled) {
-      document.getElementById("confidenceScore").textContent = recognized.confidence.toFixed(2);
-      websocket.send('[debugConfidence=' + recognized.confidence.toFixed(2) + ']');
-    }
+    if (debugModeEnabled) websocket.send('[debugConfidence=' + recognized.confidence.toFixed(2) + ']');
   }
 }
 
@@ -139,7 +156,31 @@ function onMessage(event) {
     if (!debugModeEnabled) return;
     debugModeEnabled = false;
     setDebugMode();
+  } else if (event.data === 'debugToggle') {
+    debugModeEnabled = !debugModeEnabled;
+    setDebugMode();
+  } else if (event.data === 'confidenceToggle') {
+    useConfidenceThreshold = !useConfidenceThreshold;
+    setUseConfidenceThreshold();
+  } else if (event.data === 'confidenceEnable') {
+    useConfidenceThreshold = true;
+    setUseConfidenceThreshold();
+  } else if (event.data === 'confidenceDisable') {
+    useConfidenceThreshold = false;
+    setUseConfidenceThreshold();
+  } else if (event.data.startsWith('confidence=')) {
+    confidenceThreshold = parseFloat(event.data.substring(11, event.data.length));
+    confidenceThresholdInput.value = confidenceThreshold;
+    websocket.send('[changedConfidence=' + confidenceThreshold + ']');
   }
+}
+
+function setUseConfidenceThreshold() {
+  confidenceThresholdCheckbox.checked = useConfidenceThreshold;
+  document.getElementById("confidenceThresholdContainer").style.display = useConfidenceThreshold ? "block" : "none";
+  document.getElementById("confidenceValue").style.display = useConfidenceThreshold ? "block" : "none";
+  if (useConfidenceThreshold) websocket.send('[enableConfidenceThreshold]');
+  else websocket.send('[disableConfidenceThreshold]');
 }
 
 function setDebugMode() {
