@@ -151,6 +151,5 @@ This project is in no way affiliated with by Resonite or any member of its staff
 
 ### TODO:
 
-* Implement custom confidence thresholds
+* Add option to uncensor cursing
 * Implement custom timeouts instead of relying on the end event
-* Add debugToggle command, because why not
