@@ -8,7 +8,7 @@ This enables the creation of tools like real-time captioning, or voice controlle
 
 The latest version can be found on the [releases page](https://github.com/theneolanders/resonite-voice-bridge/releases).
 
-## Usage
+## Running the server
 
 Launch the server executable, then open http://localhost:5000/ in Google Chrome. Grant the microphone permission and test the interface by speaking. You should see page saying the microhone is listening, the websocket is connected, and your spoken text appearing.
 
@@ -18,7 +18,7 @@ Use the Websocket Message Received node to receive real-time updates from the sp
 
 # Documentation
 
-## Running
+## Usage
 
 *This page requires Google Chrome, as it uses the Web Speech API. Please note that the speech recognition API in use is provided by Google.*
 
