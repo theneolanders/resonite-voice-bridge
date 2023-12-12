@@ -18,7 +18,7 @@ Use the Websocket Message Received node to receive real-time updates from the sp
 
 # Documentation
 
-## Usage
+## Running
 
 *This page requires Google Chrome, as it uses the Web Speech API. Please note that the speech recognition API in use is provided by Google.*
 
