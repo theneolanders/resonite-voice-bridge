@@ -61,7 +61,15 @@
             background-color: #666666;
         }
 
-        #debugModeCheckbox {
+        .checkbox-label {
+            margin-left: 20px;
+            cursor: pointer;
+            font-family: Arial, sans-serif;
+            color: #333;
+            font-size: 16px;
+        }
+
+        .checkbox-input {
             margin-left: 10px;
             cursor: pointer;
             height: 20px;
@@ -69,19 +77,14 @@
             vertical-align: middle;
         }
 
-        #debugModeCheckbox:checked {
+        .checkbox-input:checked {
             background-color: #4CAF50;
         }
 
-        label[for="debugModeCheckbox"] {
-            cursor: pointer;
-            vertical-align: middle;
-            padding-left: 5px;
-        }
-
-        label[for="debugModeCheckbox"]:hover {
+        .checkbox-label:hover {
             color: #830071;
         }
+
 
         #languageSelect {
             padding: 8px 10px;
@@ -100,6 +103,47 @@
         #languageSelect:focus {
             border-color: #830071;
             box-shadow: 0 0 5px rgba(131, 0, 113, 0.3);
+        }
+
+        #confidenceThresholdInput {
+            padding: 5px 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: white;
+            font-size: 14px;
+            cursor: pointer;
+            outline: none;
+        }
+
+        #confidenceThresholdInput:hover {
+            border-color: #830071;
+        }
+
+        #confidenceThresholdInput:focus {
+            border-color: #830071;
+            box-shadow: 0 0 5px rgba(131, 0, 113, 0.3);
+        }
+
+        #confidenceThresholdInputLabel {
+            font-family: Arial, sans-serif;
+            color: #333;
+            font-size: 16px;
+        }
+
+        h3 {
+            text-decoration: underline;
+        }
+
+        h4 {
+            margin-bottom: 0;
+        }
+
+        p {
+            margin: 5px 10px;
+        }
+
+        ul {
+            margin-top: 0;
         }
     </style>
 </head>
@@ -135,35 +179,69 @@
     <p class="status" id="error"></p>
     <button id="toggleMicBtn" class="btn">Toggle Microphone</button>
     <button id="clearBtn" class="btn">Clear Transcript</button>
-    <label for="debugModeCheckbox" style="margin-left: 20px;">
-        <input type="checkbox" id="debugModeCheckbox">
+    <label for="debugModeCheckbox" class="checkbox-label">
+        <input type="checkbox" id="debugModeCheckbox" class="checkbox-input">
         Enable Debug Mode
     </label>
+
+    <label for="confidenceThresholdCheckbox" class="checkbox-label">
+        <input type="checkbox" id="confidenceThresholdCheckbox" class="checkbox-input">
+        Enable Confidence Threshold
+    </label>
+
     <div class="output">
         <h3>Speech Output:</h3>
         <p id="sttOutput"></p>
     </div>
+
+    <div id="confidenceThresholdContainer" style="display: none;">
+        <label for="confidenceThresholdInput" id="confidenceThresholdInputLabel">
+            Confidence Threshold Value (0.0-1.0):
+            <input type="number" id="confidenceThresholdInput" style="margin-left: 5px;" min="0" max="1" step="0.01"
+                placeholder="0.00" value="0.0">
+        </label>
+    </div>
     <p id="confidenceValue" style="display: none;">Confidence: <span id="confidenceScore"></span></p>
-    <h3>Commands and Events</h3>
+    <h1 style="text-align: center;">Documentation</h1>
+    <h2>Usage</h2>
+    <p><i>This page requires Google Chrome, as it uses the Web Speech API. Please note that the speech recognition API in use is provided by Google.</i></p>
     <p>This page will send any detected speech to a websocket at the following url: <strong>ws://localhost:6789</strong>
     </p>
-    <p>The application supports commands and events to toggle and monitor the microphone state as well as other
-        settings.</p>
+    <p>The application uses <strong>commands</strong> and <strong>events</strong> to set and monitor the microphone state and the configuration options.</p>
+
+    <h3>Commands</h3>
+    <h4>Microphone/Recognition</h4>
     <p>It is advised to disable the microphone access when not actively in use, as anything you say while the page is
         open and the microphone is active is being sent to Google's servers.</p>
     <p>Note that the microphone controls for this application are separate from Resonite. You can have your Resonite mic
         open and the application muted, or vice-versa.</p>
-    <h4>Commands</h4>
-    <p>You can send the following commands to the websocket connection to control the microphone state and other settings</p>
     <ul>
         <li><strong>toggle</strong>: Toggles the microphone on and off</li>
         <li><strong>enable</strong>: Enables the microphone</li>
         <li><strong>disable</strong>: Disables the microphone</li>
         <li><strong>clear</strong>: Forcibly clears the transcript (This can be finicky due to the way Google changes
             predictions once it's more confident)</li>
-        <li><strong>debugEnable</strong>: Enables debug mode, this will trigger the display of the recognition
-            confidence as well as debugConfidence events, see below for more information.</li>
-        <li><strong>debugDisable</strong>: Disables debug mode</li>
+    </ul>
+    <h4>Confidence Threshold</h4>
+    <p>When enabled, the confidence threshold will be used to filter out predictions that are below the threshold. The value is a number between 0.0 and 1.0</p>
+    <ul>
+        <li><strong>confidenceToggle</strong>: Toggles the confidence threshold on and off</li>
+        <li><strong>confidenceEnable</strong>: Enables the confidence threshold</li>
+        <li><strong>confidenceDisable</strong>: Disables the confidence threshold</li>
+        <li><strong>confidence=confidenceValue</strong>: Set the minimum confidence threshold required for a prediction
+            to be sent. Example: confidence=0.92</li>
+    </ul>
+    <h4>Debug Mode</h4>
+    <p>When enabled, debug mode will send a debugConfidence event in addition to each recognition message.</p>
+    <ul>
+        <li><strong>debugToggle</strong>: Toggles confidence debug mode on and off</li>
+        <li><strong>debugEnable</strong>: Enables confidence debug mode, this will trigger the display of the
+            recognition
+            confidence and send debugConfidence events, see below for more information.</li>
+        <li><strong>debugDisable</strong>: Disables confidence debug mode</li>
+    </ul>
+    <h4>Language</h4>
+    <ul>
         <li><strong>lang=language-code</strong>: Changes the language. Example: lang=en-US. Supports the following
             language
             codes:</li>
@@ -186,21 +264,38 @@
             <li>hi-IN - Hindi (India)</li>
         </ul>
     </ul>
-    <h4>Events</h4>
+    <p><i>Note: Changing languages will temporarily disable the microphone, automatically re-enabling it if it was already enabled.</i></p>
+    <h3>Events</h3>
     <p>The server will send the following event messages when the the microphone state or an option changes:
+    <h4>Microphone/Recognition</h4>
     <ul>
         <li><strong>[enabled]</strong>: The microphone has been enabled</li>
         <li><strong>[disabled]</strong>: The microphone has been disabled</li>
         <li><strong>[cleared]</strong>: The transcript has been manually cleared</li>
-        <li><strong>[lang=language-code]</strong>: The language has been changed to <em>language-code</em>. Example:
-            [lang=en-US]</li>
+    </ul>
+    <h4>Confidence Threshold</h4>
+    <p>When enabled the confidence threshold will be used to filter out predictions that are below the threshold. The value is a number between 0.0 and 1.0</p>
+    <ul>
+        <li><strong>[enableConfidence]</strong>: The confidence threshold has been enabled</li>
+        <li><strong>[disableConfidence]</strong>: The confidence threshold has been disabled</li>
+        <li><strong>[changedConfidence=confidenceValue]</strong> - Sent when the confidence threshold is changed. Example:
+            [setConfidence=0.92]</li>
+    </ul>
+    <h4>Debug Mode</h4>
+    <p>When enabled debug mode will send a debugConfidence event in addition to each recognition message.</p>
+    <ul>
         <li><strong>[debugEnabled]</strong> - Debug mode has been enabled</li>
         <li><strong>[debugDisabled]</strong> - Debug mode has been disabled</li>
-        <li><strong>[debugConfidence=confidenceValue]</strong> - When debug mode is enabled, this event will be sent in
-            addition to
-            each recognition message with the recognition confidence for that message. Example:
+        <li><strong>[debugConfidence=confidenceValue]</strong> - The confidence value of the latest recognized message. Example:
             [debugConfidence=0.92]</li>
     </ul>
+    <h4>Language</h4>
+    <ul>
+        <li><strong>[lang=language-code]</strong>: The language has been changed to <em>language-code</em>. Example:
+            [lang=en-US]</li>
+
+    </ul>
+    <h3>Notes</h3>
     <p>Note the [ ] and _ characters in the events to simplify Protoflux parsing.</p>
     <p>You can add new languages by modifying the JS and HTML files located in _internal/static and _internal/templates.
         Any BCP 47 lanuage tag Google supports should work.</p>
