@@ -16,57 +16,104 @@ In Resonite, use the Websocket Connect node to create a websocket connection to 
 
 Use the Websocket Message Received node to receive real-time updates from the speech recognition.
 
-## Commands and Events
+# Documentation
 
-The application supports commands and events to toggle and monitor the microphone state as well as other settings.
+## Usage
+
+*This page requires Google Chrome, as it uses the Web Speech API. Please note that the speech recognition API in use is provided by Google.*
+
+This page will send any detected speech to a websocket at the following url: **ws://localhost:6789**
+
+The application uses **commands** and **events** to set and monitor the microphone state and the configuration options.
+
+### Commands
+
+#### Microphone/Recognition
 
 It is advised to disable the microphone access when not actively in use, as anything you say while the page is open and the microphone is active is being sent to Google's servers.
 
 Note that the microphone controls for this application are separate from Resonite. You can have your Resonite mic open and the application muted, or vice-versa.
 
-### Commands
+- **toggle**: Toggles the microphone on and off
+- **enable**: Enables the microphone
+- **disable**: Disables the microphone
+- **clear**: Forcibly clears the transcript (This can be finicky due to the way Google changes predictions once it's more confident)
 
-You can send the following commands to the websocket connection to control the microphone state and other settings:
+#### Confidence Threshold
 
-* **toggle** - Toggles the microphone on and off
-* **enable** - Enables the microphone
-* **disable** - Disables the microphone
-* **clear** - Forcibly clears the transcript (This can be finicky due to the way Google changes predictions once it's more confident)
-* **debugEnable** - Enables debug mode, this will trigger the display of the recognition confidence as well as debugConfidence events, see below for more information.
-* **debugDisable** - Disables debug mode
-* **lang=language-code** - Changes the language. Example: lang=en-US. Supports the following language codes:
-    * en-US - English (United States)
-    * en-GB - English (United Kingdom)
-    * es-ES - Spanish (Spain)
-    * es-MX - Spanish (Mexico)
-    * fr-FR - French (France)
-    * de-DE - German (Germany)
-    * it-IT - Italian (Italy)
-    * pt-PT - Portuguese (Portugal)
-    * pt-BR - Portuguese (Brazil)
-    * ru-RU - Russian (Russia)
-    * zh-CN - Chinese (Simplified, China)
-    * zh-TW - Chinese (Traditional, Taiwan)
-    * ja-JP - Japanese (Japan)
-    * ko-KR - Korean (South Korea)
-    * ar-SA - Arabic (Saudi Arabia)
-    * hi-IN - Hindi (India)
+When enabled, the confidence threshold will be used to filter out predictions that are below the threshold. The value is a number between 0.0 and 1.0
 
-You can add new languages by modifying the JS and HTML files located in `_internal/static` and `_internal/templates`. Any BCP 47 lanuage tag Google supports should work.
+- **confidenceToggle**: Toggles the confidence threshold on and off
+- **confidenceEnable**: Enables the confidence threshold
+- **confidenceDisable**: Disables the confidence threshold
+- **confidence=confidenceValue**: Set the minimum confidence threshold required for a prediction to be sent. Example: confidence=0.92
+
+#### Debug Mode
+
+When enabled, debug mode will send a debugConfidence event in addition to each recognition message.
+
+- **debugToggle**: Toggles confidence debug mode on and off
+- **debugEnable**: Enables confidence debug mode, this will trigger the display of the recognition confidence and send debugConfidence events, see below for more information.
+- **debugDisable**: Disables confidence debug mode
+
+#### Language
+
+- **lang=language-code**: Changes the language. Example: lang=en-US. Supports the following language codes:
+    - en-US - English (United States)
+    - en-GB - English (United Kingdom)
+    - es-ES - Spanish (Spain)
+    - es-MX - Spanish (Mexico)
+    - fr-FR - French (France)
+    - de-DE - German (Germany)
+    - it-IT - Italian (Italy)
+    - pt-PT - Portuguese (Portugal)
+    - pt-BR - Portuguese (Brazil)
+    - ru-RU - Russian (Russia)
+    - zh-CN - Chinese (Simplified, China)
+    - zh-TW - Chinese (Traditional, Taiwan)
+    - ja-JP - Japanese (Japan)
+    - ko-KR - Korean (South Korea)
+    - ar-SA - Arabic (Saudi Arabia)
+    - hi-IN - Hindi (India)
+
+*Note: Changing languages will temporarily disable the microphone, automatically re-enabling it if it was already enabled.*
 
 ### Events
 
 The server will send the following event messages when the the microphone state or an option changes:
 
-* **[enabled]** - The microphone has been enabled
-* **[disabled]** - The microhone has been disabled
-* **[cleared]** - The transcript has been manually cleared
-* **[lang=language-code]** - The language has been changed to `language-code`. Example: [lang=en-US]
-* **[debugEnabled]** - Debug mode has been enabled
-* **[debugDisabled]** - Debug mode has been disabled
-* **[debugConfidence=confidenceValue]** - When debug mode is enabled, this event will be sent in addition to each recognition message with the recognition confidence for that message. Example: [debugConfidence=0.92]
+#### Microphone/Recognition
 
-Note the `[` `]` and `_` characters in the events to simplify Protoflux parsing.
+- **[enabled]**: The microphone has been enabled
+- **[disabled]**: The microphone has been disabled
+- **[cleared]**: The transcript has been manually cleared
+
+#### Confidence Threshold
+
+When enabled the confidence threshold will be used to filter out predictions that are below the threshold. The value is a number between 0.0 and 1.0
+
+- **[enableConfidence]**: The confidence threshold has been enabled
+- **[disableConfidence]**: The confidence threshold has been disabled
+- **[changedConfidence=confidenceValue]** - Sent when the confidence threshold is changed. Example: [setConfidence=0.92]
+
+#### Debug Mode
+
+When enabled debug mode will send a debugConfidence event in addition to each recognition message.
+
+- **[debugEnabled]** - Debug mode has been enabled
+- **[debugDisabled]** - Debug mode has been disabled
+- **[debugConfidence=confidenceValue]** - The confidence value of the latest recognized message. Example: [debugConfidence=0.92]
+
+#### Language
+
+- **[lang=language-code]**: The language has been changed to _language-code_. Example: [lang=en-US]
+
+### Notes
+
+Note the [ ] and _ characters in the events to simplify Protoflux parsing.
+
+You can add new languages by modifying the JS and HTML files located in _internal/static and _internal/templates. Any BCP 47 language tag Google supports should work.
+
 
 ## How it works
 
