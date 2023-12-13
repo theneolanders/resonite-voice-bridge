@@ -22,7 +22,7 @@ Use the Websocket Message Received node to receive real-time updates from the sp
 
 *This page requires Google Chrome, as it uses the Web Speech API. Please note that the speech recognition API in use is provided by Google.*
 
-This page will send any detected speech to a websocket at the following url: **ws://localhost:6789**
+This page will broadcast any detected speech using a websocket at the following url: **ws://localhost:6789**
 
 The application uses **commands** and **events** to set and monitor the microphone state and the configuration options.
 
