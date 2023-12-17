@@ -25,7 +25,7 @@ h1 {
   font-weight: bold;
 }
 
-.output {
+.background {
   background-color: white;
   border: 1px solid #ddd;
   padding: 10px;
@@ -53,7 +53,7 @@ h1 {
   outline: none;
 }
 
-#toggleMicBtn {
+#toggleMicBtn, #addWordPairBtn {
   background-color: #333333;
 }
 
@@ -115,6 +115,10 @@ h1 {
   outline: none;
 }
 
+#confidenceValue {
+  margin: 10px 0;
+}
+
 #confidenceThresholdInput:hover {
   border-color: #830071;
 }
@@ -144,4 +148,63 @@ p {
 
 ul {
   margin-top: 0;
+}
+
+label {
+  user-select: none;
+}
+
+#wordPairList div {
+  margin-bottom: 10px;
+  padding: 5px;
+  background-color: #f9f9f9;
+  border: 1px solid #eee;
+  border-radius: 8px;
+}
+
+#wordPairList span {
+  margin-right: 10px;
+  font-weight: bold;
+}
+
+#wordPairList button {
+  padding: 5px 10px;
+  font-size: 14px;
+  margin-left: 5px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+#wordPairList button:nth-child(2) {
+  background-color: #4CAF50;
+  color: white;
+}
+
+#wordPairList button:nth-child(3) {
+  background-color: #f44336;
+  color: white;
+}
+
+#wordPairList button:hover {
+  opacity: 0.8;
+}
+
+#addWordPairForm {
+  margin-bottom: 20px;
+}
+
+#addWordPairForm input[type='text'] {
+  padding: 8px 10px;
+  margin-right: 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: white;
+  font-size: 16px;
+}
+
+#addWordPairForm input[type='text']:hover,
+#addWordPairForm input[type='text']:focus {
+  border-color: #830071;
+  box-shadow: 0 0 5px rgba(131, 0, 113, 0.3);
 }

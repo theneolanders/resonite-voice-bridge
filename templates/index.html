@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Resonite Voice Bridge</title>
     <link rel="stylesheet" href="static/style.css">
-    <link rel="shortcut icon" href="static/favicon.ico"/>
+    <link rel="shortcut icon" href="static/favicon.ico" />
 </head>
 
 <body>
@@ -52,25 +52,44 @@
         Enable Confidence Threshold
     </label>
 
-    <div class="output">
+    <label for="wordReplacementCheckbox" class="checkbox-label">
+        <input type="checkbox" id="wordReplacementCheckbox" class="checkbox-input">
+        Enable Word Replacement
+    </label>
+
+    <div class="background">
         <h3>Speech Output:</h3>
         <p id="sttOutput"></p>
     </div>
 
-    <div id="confidenceThresholdContainer" style="display: none;">
-        <label for="confidenceThresholdInput" id="confidenceThresholdInputLabel">
-            Confidence Threshold Value (0.0-1.0):
-            <input type="number" id="confidenceThresholdInput" style="margin-left: 5px;" min="0" max="1" step="0.01"
-                placeholder="0.00" value="0.0">
-        </label>
+    <div id="confidenceThresholdWrapper" class="background" style="display: none;">
+        <div id="confidenceThresholdInputWrapper">
+            <label for="confidenceThresholdInput" id="confidenceThresholdInputLabel">
+                Confidence Threshold Value (0.0-1.0):
+                <input type="number" id="confidenceThresholdInput" style="margin-left: 5px;" min="0" max="1" step="0.01"
+                    placeholder="0.00" value="0.0">
+            </label>
+        </div>
+        <p id="confidenceValue" class="background" style="display: none;">Confidence: <span
+            id="confidenceScore"></span></p>
     </div>
-    <p id="confidenceValue" style="display: none;">Confidence: <span id="confidenceScore"></span></p>
+    <div id="wordReplacementContainer" class="background">
+        <div id="wordPairList"></div>
+        <div id="addWordPairForm">
+            <input type="text" id="originalWord" placeholder="Original Word">
+            <input type="text" id="replacementWord" placeholder="Replacement Word">
+            <button id="addWordPairBtn" class="btn">Add Word Pair</button>
+        </div>
+    </div>
     <h1 style="text-align: center;">Documentation</h1>
     <h2>Usage</h2>
-    <p><i>This page requires Google Chrome, as it uses the Web Speech API. Please note that the speech recognition API in use is provided by Google.</i></p>
+    <p><strong><i>This page requires Google Chrome, as it uses the Web Speech API. Please note that the speech
+                recognition API
+                in use is provided by Google.</i></strong></p>
     <p>This page will send any detected speech to a websocket at the following url: <strong>ws://localhost:6789</strong>
     </p>
-    <p>The application uses <strong>commands</strong> and <strong>events</strong> to set and monitor the microphone state and the configuration options.</p>
+    <p>The application uses <strong>commands</strong> and <strong>events</strong> to set and monitor the microphone
+        state and the configuration options.</p>
 
     <h3>Commands</h3>
     <h4>Microphone/Recognition</h4>
@@ -84,9 +103,13 @@
         <li><strong>disable</strong>: Disables the microphone</li>
         <li><strong>clear</strong>: Forcibly clears the transcript (This can be finicky due to the way Google changes
             predictions once it's more confident)</li>
+        <li><strong>replacementToggle</strong>: Toggles the word replacement feature on and off</li>
+        <li><strong>replacementEnable</strong>: Enables the word replacement feature</li>
+        <li><strong>replacementDisable</strong>: Disables the word replacement feature</li>
     </ul>
     <h4>Confidence Threshold</h4>
-    <p>When enabled, the confidence threshold will be used to filter out predictions that are below the threshold. The value is a number between 0.0 and 1.0</p>
+    <p>When enabled, the confidence threshold will be used to filter out predictions that are below the threshold. The
+        value is a number between 0.0 and 1.0</p>
     <ul>
         <li><strong>confidenceToggle</strong>: Toggles the confidence threshold on and off</li>
         <li><strong>confidenceEnable</strong>: Enables the confidence threshold</li>
@@ -127,7 +150,8 @@
             <li>hi-IN - Hindi (India)</li>
         </ul>
     </ul>
-    <p><i>Note: Changing languages will temporarily disable the microphone, automatically re-enabling it if it was already enabled.</i></p>
+    <p><i>Note: Changing languages will temporarily disable the microphone, automatically re-enabling it if it was
+            already enabled.</i></p>
     <h3>Events</h3>
     <p>The server will send the following event messages when the the microphone state or an option changes:
     <h4>Microphone/Recognition</h4>
@@ -135,13 +159,17 @@
         <li><strong>[enabled]</strong>: The microphone has been enabled</li>
         <li><strong>[disabled]</strong>: The microphone has been disabled</li>
         <li><strong>[cleared]</strong>: The transcript has been manually cleared</li>
+        <li><strong>[replacementEnabled]</strong>: The word replacement feature has been enabled</li>
+        <li><strong>[replacementDisabled]</strong>: The word replacement feature has been disabled</li>
     </ul>
     <h4>Confidence Threshold</h4>
-    <p>When enabled the confidence threshold will be used to filter out predictions that are below the threshold. The value is a number between 0.0 and 1.0</p>
+    <p>When enabled the confidence threshold will be used to filter out predictions that are below the threshold. The
+        value is a number between 0.0 and 1.0</p>
     <ul>
         <li><strong>[enableConfidence]</strong>: The confidence threshold has been enabled</li>
         <li><strong>[disableConfidence]</strong>: The confidence threshold has been disabled</li>
-        <li><strong>[changedConfidence=confidenceValue]</strong> - Sent when the confidence threshold is changed. Example:
+        <li><strong>[changedConfidence=confidenceValue]</strong> - Sent when the confidence threshold is changed.
+            Example:
             [setConfidence=0.92]</li>
     </ul>
     <h4>Debug Mode</h4>
@@ -149,7 +177,8 @@
     <ul>
         <li><strong>[debugEnabled]</strong> - Debug mode has been enabled</li>
         <li><strong>[debugDisabled]</strong> - Debug mode has been disabled</li>
-        <li><strong>[debugConfidence=confidenceValue]</strong> - The confidence value of the latest recognized message. Example:
+        <li><strong>[debugConfidence=confidenceValue]</strong> - The confidence value of the latest recognized message.
+            Example:
             [debugConfidence=0.92]</li>
     </ul>
     <h4>Language</h4>

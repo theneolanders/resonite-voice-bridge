@@ -1,22 +1,47 @@
 let url = "ws://localhost:6789";
-let output;
-let micEnabled = false;
 let recognition;
 let websocket;
-const toggleMicButton = document.getElementById('toggleMicBtn');
-const langSelect = document.getElementById('languageSelect');
-let selectedLanguage = 'en-US';
+
+let output;
 let transcript = '';
+const clearBtn = document.getElementById('clearBtn');
+
+let selectedLanguage = 'en-US';
+const langSelect = document.getElementById('languageSelect');
+
 let manuallyCleared = false;
 let clearedSection = '';
+
 let debugModeEnabled = false;
 const debugModeCheckbox = document.getElementById('debugModeCheckbox');
-const confidenceThresholdContainer = document.getElementById('confidenceThresholdContainer');
-const confidenceThresholdCheckbox = document.getElementById('confidenceThresholdCheckbox');
-const confidenceThresholdInput = document.getElementById('confidenceThresholdInput');
+
+let micEnabled = false;
+const toggleMicButton = document.getElementById('toggleMicBtn');
+
 let useConfidenceThreshold = false;
 let confidenceThreshold = 0;
+const confidenceThresholdWrapper = document.getElementById('confidenceThresholdWrapper');
+const confidenceThresholdInputWrapper = document.getElementById('confidenceThresholdInputWrapper');
+const confidenceThresholdCheckbox = document.getElementById('confidenceThresholdCheckbox');
+const confidenceThresholdInput = document.getElementById('confidenceThresholdInput');
 
+let wordReplacementEnabled = false;
+const wordReplacementCheckbox = document.getElementById('wordReplacementCheckbox');
+const wordReplacementContainer = document.getElementById('wordReplacementContainer');
+const addWordPairBtn = document.getElementById('addWordPairBtn');
+
+const defaultWordDictionary = {
+  'f***': 'fuck',
+  'f****': 'fucks',
+  'b******': 'bitches',
+  's***': 'shit',
+  's****': 'shits',
+  'cont': 'cunt',
+  'b****': 'bitch',
+  'a******': 'asshole',
+};
+
+let wordDictionary = {};
 
 function init() {
   output = document.getElementById("output");
@@ -30,19 +55,31 @@ function init() {
   initializeRecognition();
 
   toggleMicButton.addEventListener('click', toggleMic);
-  document.getElementById('languageSelect').addEventListener('change', changeLanguage);
-  document.getElementById('clearBtn').addEventListener('click', clearTranscript);
+  langSelect.addEventListener('change', changeLanguage);
+  clearBtn.addEventListener('click', clearTranscript);
+  wordReplacementCheckbox.addEventListener('change', () => {
+    wordReplacementEnabled = wordReplacementCheckbox.checked;
+    wordReplacementContainer.style.display = wordReplacementEnabled ? "block" : "none";
+    websocket.send(wordReplacementEnabled ? '[replacementEnabled]' : '[replacementDisabled]');
+    saveSettings();
+  });
 
   debugModeCheckbox.addEventListener('change', () => {
     debugModeEnabled = debugModeCheckbox.checked;
-    document.getElementById("confidenceValue").style.display = debugModeEnabled ? "block" : "none";
+
+    confidenceThresholdWrapper.style.display = useConfidenceThreshold || debugModeEnabled ? "block" : "none";
+    confidenceThresholdInputWrapper.style.display = useConfidenceThreshold ? "block" : "none";
+    document.getElementById("confidenceValue").style.display = useConfidenceThreshold || debugModeEnabled ? "block" : "none";
+
     if (debugModeEnabled) websocket.send('[debugEnabled]');
     else websocket.send('[debugDisabled]');
+    saveSettings();
   });
 
   confidenceThresholdCheckbox.addEventListener('change', () => {
     useConfidenceThreshold = confidenceThresholdCheckbox.checked;
     setUseConfidenceThreshold();
+    saveSettings();
   });
 
   confidenceThresholdInput.addEventListener('input', () => {
@@ -50,9 +87,44 @@ function init() {
     if (prevValue === parseFloat(confidenceThresholdInput.value)) return;
     confidenceThreshold = parseFloat(confidenceThresholdInput.value);
     if (!isNaN(confidenceThreshold)) websocket.send('[setConfidence=' + confidenceThreshold + ']');
+    saveSettings();
   });
 
+  addWordPairBtn.addEventListener('click', addWordPair);
+  loadSetings();
   checkMicrophoneAccess();
+  renderWordPairs();
+}
+
+function loadSetings() {
+  wordReplacementEnabled = localStorage.getItem('wordReplacementEnabled') === 'true';
+  wordReplacementCheckbox.checked = wordReplacementEnabled;
+  wordDictionary = JSON.parse(localStorage.getItem('wordDictionary') || JSON.stringify(defaultWordDictionary));
+  renderWordPairs();
+
+  debugModeEnabled = localStorage.getItem('debugModeEnabled') === 'true';
+  debugModeCheckbox.checked = debugModeEnabled;
+
+  useConfidenceThreshold = localStorage.getItem('useConfidenceThreshold') === 'true';
+  confidenceThreshold = parseFloat(localStorage.getItem('confidenceThreshold'));
+  confidenceThresholdCheckbox.checked = useConfidenceThreshold;
+  confidenceThresholdInput.value = confidenceThreshold;
+
+  confidenceThresholdWrapper.style.display = useConfidenceThreshold || debugModeEnabled ? "block" : "none";
+  confidenceThresholdInputWrapper.style.display = useConfidenceThreshold ? "block" : "none";
+  document.getElementById("confidenceValue").style.display = useConfidenceThreshold || debugModeEnabled ? "block" : "none";
+
+  selectedLanguage = localStorage.getItem('selectedLanguage') || 'en-US';
+  langSelect.value = selectedLanguage;
+}
+
+function saveSettings() {
+  localStorage.setItem('wordReplacementEnabled', wordReplacementEnabled);
+  localStorage.setItem('debugModeEnabled', debugModeEnabled);
+  localStorage.setItem('useConfidenceThreshold', useConfidenceThreshold);
+  localStorage.setItem('confidenceThreshold', confidenceThreshold);
+  localStorage.setItem('wordDictionary', JSON.stringify(wordDictionary));
+  localStorage.setItem('selectedLanguage', selectedLanguage);
 }
 
 function initializeRecognition() {
@@ -87,6 +159,7 @@ function changeLanguage() {
   if (micEnabled) toggleMic();
   recognition.lang = langSelect.value;
   websocket.send("[lang=" + langSelect.value + "]");
+  saveSettings();
   const timeout = setTimeout(() => {
     if (micWasEnabled) toggleMic();
     clearTimeout(timeout);
@@ -106,16 +179,74 @@ function updateMic() {
   else recognition.stop();
   document.getElementById("micStatus").innerHTML = micEnabled ? '<span style="color: green;">Listening</span>' : '<span style="color: red;">Not Listening</span>';
   websocket.send(micEnabled ? "[enabled] " : "[disabled]");
+  saveSettings();
+}
+
+function replaceWords(text) {
+  return text.split(' ').map(word => wordDictionary[word] || word).join(' ');
+}
+
+function renderWordPairs() {
+  const wordPairList = document.getElementById('wordPairList');
+  wordPairList.innerHTML = '';
+  Object.keys(wordDictionary).forEach((key) => {
+    const pairDiv = document.createElement('div');
+    pairDiv.innerHTML = `
+      <span>${key}: ${wordDictionary[key]}</span>
+      <button onclick="editWordPair('${key}')">Edit</button>
+      <button onclick="deleteWordPair('${key}')">Delete</button>
+    `;
+    wordPairList.appendChild(pairDiv);
+  });
+  wordReplacementContainer.style.display = wordReplacementEnabled ? "block" : "none";
+}
+
+function addWordPair() {
+  const originalWord = document.getElementById('originalWord').value;
+  const replacementWord = document.getElementById('replacementWord').value;
+  if (originalWord && replacementWord) {
+    wordDictionary[originalWord] = replacementWord;
+    renderWordPairs();
+  }
+  saveSettings();
+}
+
+function deleteWordPair(key) {
+  delete wordDictionary[key];
+  renderWordPairs();
+  saveSettings();
+}
+
+function editWordPair(key) {
+  // Prompt because I am lazy
+  const newReplacement = prompt(`Enter replacement for '${key}':`, wordDictionary[key]);
+  if (newReplacement !== null) {
+    wordDictionary[key] = newReplacement;
+    renderWordPairs();
+  }
+  saveSettings();
+}
+
+function setWordReplacement() {
+  document.getElementById("wordReplacementContainer").style.display = wordReplacementEnabled ? "block" : "none";
+  saveSettings();
 }
 
 function onSpeechRecognized(e) {
   const recognized = e.results[0][0];
   document.getElementById("confidenceScore").textContent = recognized.confidence.toFixed(2);
   if (useConfidenceThreshold && recognized.confidence < confidenceThreshold) return;
-  if (recognized.transcript !== transcript && recognized.transcript.length > transcript.length) {
+
+  let processedTranscript = recognized.transcript;
+  if (wordReplacementEnabled) {
+    processedTranscript = replaceWords(processedTranscript);
+  }
+
+  if (processedTranscript !== transcript && processedTranscript.length > transcript.length) {
     if (manuallyCleared) {
-      transcript = recognized.transcript.replace(clearedSection, '');
-    } else transcript = recognized.transcript;
+      transcript = processedTranscript.replace(clearedSection, '');
+    } else transcript = processedTranscript;
+
     document.getElementById("sttOutput").innerHTML = transcript;
     websocket.send(transcript);
 
@@ -172,22 +303,38 @@ function onMessage(event) {
     confidenceThreshold = parseFloat(event.data.substring(11, event.data.length));
     confidenceThresholdInput.value = confidenceThreshold;
     websocket.send('[changedConfidence=' + confidenceThreshold + ']');
+  } else if (event.data === 'replacementEnable') {
+    wordReplacementEnabled = true;
+    setWordReplacement();
+  } else if (event.data === 'replacementDisable') {
+    wordReplacementEnabled = false;
+    setWordReplacement();
+  } else if (event.data === 'replacementToggle') {
+    wordReplacementEnabled = !wordReplacementEnabled;
+    setWordReplacement();
   }
 }
 
 function setUseConfidenceThreshold() {
   confidenceThresholdCheckbox.checked = useConfidenceThreshold;
-  document.getElementById("confidenceThresholdContainer").style.display = useConfidenceThreshold ? "block" : "none";
-  document.getElementById("confidenceValue").style.display = useConfidenceThreshold ? "block" : "none";
+  confidenceThresholdWrapper.style.display = useConfidenceThreshold || debugModeEnabled ? "block" : "none";
+  confidenceThresholdInputWrapper.style.display = useConfidenceThreshold ? "block" : "none";
+  document.getElementById("confidenceValue").style.display = useConfidenceThreshold || debugModeEnabled ? "block" : "none";
   if (useConfidenceThreshold) websocket.send('[enableConfidenceThreshold]');
   else websocket.send('[disableConfidenceThreshold]');
+  saveSettings();
 }
 
 function setDebugMode() {
   debugModeCheckbox.checked = debugModeEnabled;
-  document.getElementById("confidenceValue").style.display = debugModeEnabled ? "block" : "none";
+
+  confidenceThresholdWrapper.style.display = useConfidenceThreshold || debugModeEnabled ? "block" : "none";
+  confidenceThresholdInputWrapper.style.display = useConfidenceThreshold ? "block" : "none";
+  document.getElementById("confidenceValue").style.display = useConfidenceThreshold || debugModeEnabled ? "block" : "none";
+
   if (debugModeEnabled) websocket.send('[debugEnabled]');
   else websocket.send('[debugDisabled]');
+  saveSettings();
 }
 
 function clearTranscript() {
