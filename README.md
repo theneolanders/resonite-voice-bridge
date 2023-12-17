@@ -169,5 +169,5 @@ This project is in no way affiliated with by Resonite or any member of its staff
 
 ### TODO:
 
-* Add option to uncensor cursing
+* Update readme screenshots
 * Implement custom timeouts instead of relying on the end event
