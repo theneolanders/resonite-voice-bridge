@@ -2,6 +2,8 @@
 
 # Resonite Voice Bridge
 
+#### _Logo by DALL-E, application written in collaboration with OpenAI's GPT-4_
+
 
 This application enables the use of Speech-To-Text in Resonite, by bridging Google Chrome's STT API with a Websocket server.
 
@@ -23,7 +25,7 @@ Use the Websocket Message Received node to receive real-time updates from the sp
 
 ## Usage
 
-*This page requires Google Chrome, as it uses the Web Speech API. Please note that the speech recognition API in use is provided by Google.*
+_**This page requires Google Chrome, as it uses the Web Speech API. Please note that the speech recognition API in use is provided by Google.**_
 
 This page will broadcast any detected speech using a websocket at the following url: **ws://localhost:6789**
 
@@ -41,6 +43,8 @@ Note that the microphone controls for this application are separate from Resonit
 - **enable**: Enables the microphone
 - **disable**: Disables the microphone
 - **clear**: Forcibly clears the transcript (This can be finicky due to the way Google changes predictions once it's more confident)
+- **replacementEnable**: Enables the word replacement feature
+- **replacementDisable**: Disables the word replacement feature
 
 #### Confidence Threshold
 
@@ -90,6 +94,8 @@ The server will send the following event messages when the the microphone state 
 - **[enabled]**: The microphone has been enabled
 - **[disabled]**: The microphone has been disabled
 - **[cleared]**: The transcript has been manually cleared
+- **[replacementEnabled]**: The word replacement feature has been enabled
+- **[replacementDisabled]**: The word replacement feature has been disabled
 
 #### Confidence Threshold
 
