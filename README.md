@@ -132,7 +132,7 @@ When enabled debug mode will send a debugConfidence event in addition to each re
 
 ### Notes
 
-Note the [ ] and _ characters in the events to simplify Protoflux parsing.
+Note the [ ] characters in the events to simplify Protoflux parsing.
 
 You can add new languages by modifying the JS and HTML files located in _internal/static and _internal/templates. Any BCP 47 language tag Google supports should work.
 
