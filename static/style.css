@@ -53,6 +53,11 @@ h1 {
   outline: none;
 }
 
+#settingsWrapper {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
 #toggleMicBtn, #addWordPairBtn {
   background-color: #333333;
 }
@@ -105,7 +110,7 @@ h1 {
   box-shadow: 0 0 5px rgba(131, 0, 113, 0.3);
 }
 
-#confidenceThresholdInput {
+input[type='number'] {
   padding: 5px 10px;
   border: 1px solid #ddd;
   border-radius: 8px;
