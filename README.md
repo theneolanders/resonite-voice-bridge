@@ -134,11 +134,7 @@ The websocket server is configured to echo any message it receives back to all o
 
 ## Troubleshooting
 
-The text from the speech recognition API is streamed in real-time, rather than waiting for a pause and then sending the entire captured string. Due to the way Google's speech recognition works this will result in excessive messages.
-
-For example saying "This is a test" resulted in 6 messages sent to the websocket:
-
-![image](https://github.com/theneolanders/resonite-voice-bridge/assets/3112763/b9a624f5-7987-40a2-a8ac-39531735ced6)
+The text from the speech recognition API is streamed in real-time, rather than waiting for a pause and then sending the entire captured string.
 
 If you're not getting speech transcription in the webpage, make sure Chrome is listening to the correct input device by clicking the microphone icon in the address bar:
 
