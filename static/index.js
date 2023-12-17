@@ -262,7 +262,7 @@ function onSpeechEnded() {
 }
 
 function onOpen(event) {
-  document.getElementById("websocketStatus").innerHTML = '<span style="color: green;">Connected</span>';
+  document.getElementById("websocketStatus").innerHTML = '<span style="color: green;">Connected to backend</span>';
 }
 
 function onMessage(event) {
@@ -349,7 +349,7 @@ function onError(event) {
 }
 
 function onClose(event) {
-  document.getElementById("websocketStatus").innerHTML = '<span style="color: red;">Disconnected</span>';
+  document.getElementById("websocketStatus").innerHTML = '<span style="color: red;">Disconnected from backend</span>';
 }
 
 window.addEventListener("load", init, false);
