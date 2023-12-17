@@ -1,4 +1,7 @@
+![logo(1)](https://github.com/theneolanders/resonite-voice-bridge/assets/3112763/ccd355ff-1566-4a7d-a32a-99839171f1bf)
+
 # Resonite Voice Bridge
+
 
 This application enables the use of Speech-To-Text in Resonite, by bridging Google Chrome's STT API with a Websocket server.
 
