@@ -15,7 +15,7 @@
         <h1>Resonite Voice Bridge</h1>
         <hr />
     </header>
-    <p class="status">Websocket Status: <span id="websocketStatus">Disconnected</span></p>
+    <p class="status">Websocket: <span id="websocketStatus">Disconnected</span></p>
     <p class="status">Microphone: <span id="micStatus">Waiting for permission</span></p>
     <p class="status">Language:
         <select id="languageSelect">
@@ -58,11 +58,12 @@
     </label>
 
     <div class="background">
-        <h3>Speech Output:</h3>
+        <h3 style="text-decoration: none;">Speech Output:</h3>
         <p id="sttOutput"></p>
     </div>
 
     <div id="confidenceThresholdWrapper" class="background" style="display: none;">
+        <h3 style="text-decoration: none;">Confidence Threshold</h3>
         <div id="confidenceThresholdInputWrapper">
             <label for="confidenceThresholdInput" id="confidenceThresholdInputLabel">
                 Confidence Threshold Value (0.0-1.0):
@@ -74,6 +75,7 @@
             id="confidenceScore"></span></p>
     </div>
     <div id="wordReplacementContainer" class="background">
+        <h3 style="text-decoration: none;">Word Replacement</h3>
         <div id="wordPairList"></div>
         <div id="addWordPairForm">
             <input type="text" id="originalWord" placeholder="Original Word">
@@ -90,6 +92,19 @@
     </p>
     <p>The application uses <strong>commands</strong> and <strong>events</strong> to set and monitor the microphone
         state and the configuration options.</p>
+
+    <h3>Options</h3>
+    <p>The following options are available:</p>
+    <ul>
+        <li><strong>Language</strong>: The language to use for speech recognition. See the list of supported languages below.</li>
+        <li><strong>Debug Mode</strong>: When enabled, debug mode will send a debugConfidence event in addition to each
+            recognition message</li>
+        <li><strong>Confidence Threshold</strong>: When enabled, the confidence threshold will be used to filter out
+            predictions that are below the threshold. The value is a number between 0.0 and 1.0</li>
+        <li><strong>Word Replacement</strong>: When enabled, the user will be able to replace words in the transcript. This can be used to uncensor the Google transcript, or to fix recognition errors. By default this list is populated with a list of common profanities.</li>
+    </ul>
+    <p>Each of these options can be toggled and configured using the GUI or via the commands listed below.</p>
+    <p>The value of each setting is persisted across reloads using localStorage.</p>
 
     <h3>Commands</h3>
     <h4>Microphone/Recognition</h4>

@@ -2,7 +2,7 @@
 
 # Resonite Voice Bridge
 
-#### _Logo by DALL-E, application written in collaboration with OpenAI's GPT-4_
+#### _Logo by DALL-E, edited by Zetaphor. Application written in collaboration with GPT-4_
 
 
 This application enables the use of Speech-To-Text in Resonite, by bridging Google Chrome's STT API with a Websocket server.
@@ -30,6 +30,19 @@ _**This page requires Google Chrome, as it uses the Web Speech API. Please note 
 This page will broadcast any detected speech using a websocket at the following url: **ws://localhost:6789**
 
 The application uses **commands** and **events** to set and monitor the microphone state and the configuration options.
+
+### Features
+
+The following features are available:
+
+- **Language**: The language to use for speech recognition. See the list of supported languages below.
+- **Debug Mode**: When enabled, debug mode will send a debugConfidence event in addition to each recognition message
+- **Confidence Threshold**: When enabled, the confidence threshold will be used to filter out predictions that are below the threshold. The value is a number between 0.0 and 1.0
+- **Word Replacement**: When enabled, the user will be able to replace words in the transcript. This can be used to uncensor the Google transcript, or to fix recognition errors. By default this list is populated with a list of common profanities.
+
+Each of these features can be toggled and configured using the GUI or via the commands listed below.
+
+The value of each feature is persisted across reloads using localStorage.
 
 ### Commands
 
