@@ -30,6 +30,13 @@ const wordReplacementCheckbox = document.getElementById('wordReplacementCheckbox
 const wordReplacementContainer = document.getElementById('wordReplacementContainer');
 const addWordPairBtn = document.getElementById('addWordPairBtn');
 
+const speechTimeoutCheckbox = document.getElementById('speechTimeoutCheckbox');
+const speechTimeoutInput = document.getElementById('speechTimeoutInput');
+let speechTimeoutEnabled = false;
+let speechTimeoutDuration = 0; // Duration in milliseconds
+let waitingForCustomTimeout = false;
+let speechTimer = null;
+
 const defaultWordDictionary = {
   'f***': 'fuck',
   'f****': 'fucks',
@@ -90,6 +97,17 @@ function init() {
     saveSettings();
   });
 
+  speechTimeoutCheckbox.addEventListener('change', () => {
+    speechTimeoutEnabled = speechTimeoutCheckbox.checked;
+    document.getElementById("speechTimeoutInputWrapper").style.display = speechTimeoutCheckbox.checked ? "block" : "none";
+    saveSettings();
+  });
+
+  speechTimeoutInput.addEventListener('input', () => {
+    speechTimeoutDuration = parseInt(speechTimeoutInput.value, 10);
+    saveSettings();
+  });
+
   addWordPairBtn.addEventListener('click', addWordPair);
   loadSetings();
   checkMicrophoneAccess();
@@ -116,6 +134,13 @@ function loadSetings() {
 
   selectedLanguage = localStorage.getItem('selectedLanguage') || 'en-US';
   langSelect.value = selectedLanguage;
+
+  speechTimeoutEnabled = localStorage.getItem('speechTimeoutEnabled') === 'true';
+  speechTimeoutDuration = parseInt(localStorage.getItem('speechTimeoutDuration'), 10) || 0;
+  speechTimeoutCheckbox.checked = speechTimeoutEnabled;
+  speechTimeoutInput.value = speechTimeoutDuration;
+  if (speechTimeoutDuration === 0) waitingForCustomTimeout = true;
+  document.getElementById("speechTimeoutInputWrapper").style.display = speechTimeoutEnabled ? "block" : "none";
 }
 
 function saveSettings() {
@@ -125,6 +150,8 @@ function saveSettings() {
   localStorage.setItem('confidenceThreshold', confidenceThreshold);
   localStorage.setItem('wordDictionary', JSON.stringify(wordDictionary));
   localStorage.setItem('selectedLanguage', selectedLanguage);
+  localStorage.setItem('speechTimeoutEnabled', speechTimeoutEnabled);
+  localStorage.setItem('speechTimeoutDuration', speechTimeoutDuration);
 }
 
 function initializeRecognition() {
@@ -234,31 +261,69 @@ function setWordReplacement() {
 
 function onSpeechRecognized(e) {
   const recognized = e.results[0][0];
-  document.getElementById("confidenceScore").textContent = recognized.confidence.toFixed(2);
+  const recognizedConfidence = e.results[0][0].confidence.toFixed(2);
+  document.getElementById("confidenceScore").textContent = recognizedConfidence;
+
   if (useConfidenceThreshold && recognized.confidence < confidenceThreshold) return;
 
   let processedTranscript = recognized.transcript;
-  if (wordReplacementEnabled) {
-    processedTranscript = replaceWords(processedTranscript);
+  if (wordReplacementEnabled) processedTranscript = replaceWords(processedTranscript);
+
+  // console.log('Current:', transcript);
+  // console.log('Processed:', processedTranscript);
+
+  if (waitingForCustomTimeout) {
+    // transcript += processedTranscript;
+    console.log('Processed:', processedTranscript);
+    console.log('transcript:', transcript);
+    // Remove the processed part from the existing transcript
+    transcript += ' ' + processedTranscript.replace(transcript, '');
+  } else {
+    console.log('Not waiting')
+    transcript = processedTranscript;
   }
 
-  if (processedTranscript !== transcript && processedTranscript.length > transcript.length) {
-    if (manuallyCleared) {
-      transcript = processedTranscript.replace(clearedSection, '');
-    } else transcript = processedTranscript;
+  // if (processedTranscript !== transcript && processedTranscript.length > transcript.length) {
+  //   if (manuallyCleared) {
+  //     transcript = processedTranscript.replace(clearedSection, '');
+  //   } else transcript = processedTranscript;
 
-    document.getElementById("sttOutput").innerHTML = transcript;
-    websocket.send(transcript);
+  //   document.getElementById("sttOutput").innerHTML = transcript;
+  //   websocket.send(transcript);
 
-    if (debugModeEnabled) websocket.send('[debugConfidence=' + recognized.confidence.toFixed(2) + ']');
-  }
+  //   if (debugModeEnabled) {
+  //     websocket.send('[debugConfidence=' + recognizedConfidence + ']');
+  //   }
+  // }
 }
 
 function onSpeechEnded() {
   if (micEnabled) recognition.start();
+  if (speechTimeoutEnabled) {
+    clearTimeout(speechTimer);
+    waitingForCustomTimeout = true;
+    if (speechTimeoutDuration > 0) {
+      speechTimer = setTimeout(() => {
+        transcript = '';
+        clearedSection = '';
+        manuallyCleared = false;
+        clearTimeout(speechTimer);
+        waitingForCustomTimeout = false;
+      }, speechTimeoutDuration);
+    }
+  } else {
+    transcript = '';
+    clearedSection = '';
+    manuallyCleared = false;
+  }
+}
+
+function clearTranscript() {
+  clearedSection = transcript;
   transcript = '';
-  clearedSection = '';
-  manuallyCleared = false;
+  manuallyCleared = true;
+  document.getElementById("sttOutput").innerHTML = '';
+  websocket.send("[cleared]");
 }
 
 function onOpen(event) {
@@ -335,13 +400,6 @@ function setDebugMode() {
   if (debugModeEnabled) websocket.send('[debugEnabled]');
   else websocket.send('[debugDisabled]');
   saveSettings();
-}
-
-function clearTranscript() {
-  clearedSection = transcript;
-  manuallyCleared = true;
-  document.getElementById("sttOutput").innerHTML = '';
-  websocket.send("[cleared]");
 }
 
 function onError(event) {

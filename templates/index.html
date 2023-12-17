@@ -44,25 +44,38 @@
     <button id="clearBtn" class="btn">Clear Transcript</button>
     <div id="settingsWrapper" class="background">
         <h3 style="text-decoration: none; margin: 5px;">Settings</h3>
-    <label for="debugModeCheckbox" class="checkbox-label">
-        <input type="checkbox" id="debugModeCheckbox" class="checkbox-input">
-        Enable Debug Mode
-    </label>
+        <label for="debugModeCheckbox" class="checkbox-label">
+            <input type="checkbox" id="debugModeCheckbox" class="checkbox-input">
+            Enable Debug Mode
+        </label>
 
-    <label for="confidenceThresholdCheckbox" class="checkbox-label">
-        <input type="checkbox" id="confidenceThresholdCheckbox" class="checkbox-input">
-        Enable Confidence Threshold
-    </label>
+        <label for="confidenceThresholdCheckbox" class="checkbox-label">
+            <input type="checkbox" id="confidenceThresholdCheckbox" class="checkbox-input">
+            Enable Confidence Threshold
+        </label>
 
-    <label for="wordReplacementCheckbox" class="checkbox-label">
-        <input type="checkbox" id="wordReplacementCheckbox" class="checkbox-input">
-        Enable Word Replacement
-    </label>
+        <label for="wordReplacementCheckbox" class="checkbox-label">
+            <input type="checkbox" id="wordReplacementCheckbox" class="checkbox-input">
+            Enable Word Replacement
+        </label>
+
+        <label for="speechTimeoutCheckbox" class="checkbox-label">
+            <input type="checkbox" id="speechTimeoutCheckbox" class="checkbox-input">
+            Enable Custom Timeout
+        </label>
     </div>
 
     <div class="background">
         <h3 style="text-decoration: none;">Speech Output:</h3>
         <p id="sttOutput"></p>
+    </div>
+
+    <div id="speechTimeoutInputWrapper" style="display: none;" class="background">
+        <h3 style="text-decoration: none;">Speech Timeout</h3>
+        <label for="speechTimeoutInput">
+            Timeout (milliseconds):
+            <input type="number" id="speechTimeoutInput" min="0" placeholder="0">
+        </label>
     </div>
 
     <div id="confidenceThresholdWrapper" class="background" style="display: none;">
