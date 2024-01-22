@@ -129,7 +129,7 @@ When enabled the confidence threshold will be used to filter out predictions tha
 
 - **[enableConfidence]**: The confidence threshold has been enabled
 - **[disableConfidence]**: The confidence threshold has been disabled
-- **[changedConfidence=confidenceValue]** - Sent when the confidence threshold is changed. Example: [setConfidence=0.92]
+- **[changedConfidence=confidenceValue]** - Sent when the confidence threshold is changed. Example: [changedConfidence=0.92]
 
 #### Debug Mode
 
