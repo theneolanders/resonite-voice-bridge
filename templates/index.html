@@ -49,6 +49,11 @@
         Enable Debug Mode
     </label>
 
+    <label for="outputStreamingCheckbox" class="checkbox-label">
+        <input type="checkbox" id="outputStreamingCheckbox" class="checkbox-input" checked>
+        Stream Output
+    </label>
+
     <label for="removePunctuationCheckbox" class="checkbox-label">
         <input type="checkbox" id="removePunctuationCheckbox" class="checkbox-input">
         Remove Punctuation
@@ -108,6 +113,7 @@
             below.</li>
         <li><strong>Debug Mode</strong>: When enabled, debug mode will send a debugConfidence event in addition to each
             recognition message.</li>
+        <li><strong>Stream Output</strong>: When enabled, the transcription will be sent after each recognition event. For multi-word transcriptions, this may result in incomplete or incorrect transcriptions being sent. This is because Google's Speech To Text service updates the transcript in real-time as it gains confidence about previous words from later context. When disabled, a single transcript will be sent when the service determines the speech input has ended.</li>
         <li><strong>Remove Punctuation</strong>: When enabled, punctuation will be removed from the transcript. This means only letters, numbers, and space characters will remain.</li>
         <li><strong>Confidence Threshold</strong>: When enabled, the confidence threshold will be used to filter out
             predictions that are below the threshold. The value is a number between 0.0 and 1.0.</li>
@@ -136,6 +142,9 @@
         <li><strong>removePunctuationToggle</strong>: Toggles the punctuation removal on and off</li>
         <li><strong>removePunctuationEnable</strong>: Enables the punctuation removal</li>
         <li><strong>removePunctuationDisable</strong>: Disables the punctuation removal</li>
+        <li><strong>outputStreamingToggle</strong>: Toggles the output streaming on and off</li>
+        <li><strong>outputStreamingEnable</strong>: Enables the output streaming</li>
+        <li><strong>outputStreamingDisable</strong>: Disables the output streaming</li>
     </ul>
     <h4>Confidence Threshold</h4>
     <p>When enabled, the confidence threshold will be used to filter out predictions that are below the threshold. The
@@ -193,6 +202,8 @@
         <li><strong>[replacementDisabled]</strong>: The word replacement feature has been disabled</li>
         <li><strong>[removePunctuationEnabled]</strong>: The punctuation removal feature has been enabled</li>
         <li><strong>[removePunctuationDisabled]</strong>: The punctuation removal feature has been disabled</li>
+        <li><strong>[outputStreamingEnabled]</strong>: The output streaming feature has been enabled</li>
+        <li><strong>[outputStreamingDisabled]</strong>: The output streaming feature has been disabled</li>
         <li><strong>[speechEnded]</strong>: Sent whenever Google Chrome has determined that the user has stopped speaking</li>
     </ul>
     <h4>Confidence Threshold</h4>

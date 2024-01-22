@@ -37,6 +37,7 @@ The following features are available:
 
 - **Language**: The language to use for speech recognition. See the list of supported languages below.
 - **Debug Mode**: When enabled, debug mode will send a debugConfidence event in addition to each recognition message.
+- **Stream Output**: When enabled, the transcription will be sent after each recognition event. For multi-word transcriptions, this may result in incomplete or incorrect transcriptions being sent. This is because Google's Speech To Text service updates the transcript in real-time as it gains confidence about previous words from later context. When disabled, a single transcript will be sent when the service determines the speech input has ended.
 - **Punctuation Removal**: When enabled, punctuation will be removed from the transcript. This means only letters, numbers, and space characters will remain.
 - **Confidence Threshold**: When enabled, the confidence threshold will be used to filter out predictions that are below the threshold. The value is a number between 0.0 and 1.0.
 - **Word Replacement**: When enabled, the user will be able to replace words in the transcript. This can be used to uncensor the Google transcript, or to fix recognition errors. By default this list is populated with a list of common profanities.
@@ -62,6 +63,9 @@ Note that the microphone controls for this application are separate from Resonit
 - **removePunctuationToggle**: Toggles punctuation removal on and off
 - **removePunctuationEnable**: Enables punctuation removal
 - **removePunctuationDisable**: Disables punctuation removal
+- **outputStreamingToggle**: Toggles streaming output on and off
+- **outputStreamingEnable**: Enables streaming output
+- **outputStreamingDisable**: Disables streaming output
 
 #### Confidence Threshold
 
@@ -115,6 +119,8 @@ The server will send the following event messages when the the microphone state 
 - **[replacementDisabled]**: The word replacement feature has been disabled
 - **[removePunctuationEnabled]**: Punctuation removal has been enabled
 - **[removePunctuationDisabled]**: Punctuation removal has been disabled
+- **[outputStreamingEnabled]**: Streaming output has been enabled
+- **[outputStreamingDisabled]**: Streaming output has been disabled
 - **[speechEnded]**: Sent whenever Google Chrome has determined that the user has stopped speaking
 
 #### Confidence Threshold

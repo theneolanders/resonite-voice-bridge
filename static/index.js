@@ -31,6 +31,10 @@ const wordReplacementContainer = document.getElementById('wordReplacementContain
 const addWordPairBtn = document.getElementById('addWordPairBtn');
 
 let removePunctuation = false;
+const removePunctuationCheckbox = document.getElementById('removePunctuationCheckbox');
+
+let outputStreaming = true;
+const outputStreamingCheckbox = document.getElementById('outputStreamingCheckbox');
 
 const defaultWordDictionary = {
   'f***': 'fuck',
@@ -83,7 +87,14 @@ function init() {
     if (removePunctuation) websocket.send('[removePunctuationEnabled]');
     else websocket.send('[removePunctuationDisabled]');
     saveSettings();
-  })
+  });
+
+  outputStreamingCheckbox.addEventListener('change', () => {
+    outputStreaming = outputStreamingCheckbox.checked;
+    if (outputStreaming) websocket.send('[outputStreamingEnabled]');
+    else websocket.send('[outputStreamingDisabled]');
+    saveSettings();
+  });
 
   confidenceThresholdCheckbox.addEventListener('change', () => {
     useConfidenceThreshold = confidenceThresholdCheckbox.checked;
@@ -128,6 +139,9 @@ function loadSetings() {
 
   removePunctuation = localStorage.getItem('removePunctuation') === 'true';
   removePunctuationCheckbox.checked = removePunctuation;
+
+  outputStreaming = localStorage.getItem('outputStreaming') === 'true';
+  outputStreamingCheckbox.checked = outputStreaming;
 }
 
 function saveSettings() {
@@ -138,6 +152,7 @@ function saveSettings() {
   localStorage.setItem('wordDictionary', JSON.stringify(wordDictionary));
   localStorage.setItem('selectedLanguage', selectedLanguage);
   localStorage.setItem('removePunctuation', removePunctuation);
+  localStorage.setItem('outputStreaming', outputStreaming);
 }
 
 function initializeRecognition() {
@@ -269,7 +284,7 @@ function onSpeechRecognized(e) {
     } else transcript = processedTranscript;
 
     document.getElementById("sttOutput").innerHTML = transcript;
-    websocket.send(transcript);
+    if (outputStreaming) websocket.send(transcript);
 
     if (debugModeEnabled) websocket.send('[debugConfidence=' + recognized.confidence.toFixed(2) + ']');
   }
@@ -277,10 +292,13 @@ function onSpeechRecognized(e) {
 
 function onSpeechEnded() {
   if (micEnabled) recognition.start();
+  if (transcript.length) {
+    if (!outputStreaming) websocket.send(transcript);
+    websocket.send('[speechEnded]');
+  }
   transcript = '';
   clearedSection = '';
   manuallyCleared = false;
-  websocket.send('[speechEnded]');
 }
 
 function onOpen(event) {
@@ -344,6 +362,16 @@ function onMessage(event) {
     removePunctuation = !removePunctuation;
     if (removePunctuation) websocket.send('[removePunctuationEnabled]');
     else websocket.send('[removePunctuationDisabled]');
+  } else if (event.data === 'outputStreamingEnable') {
+    outputStreaming = true;
+    websocket.send('[outputStreamingEnabled]');
+  } else if (event.data === 'outputStreamingDisable') {
+    outputStreaming = false;
+    websocket.send('[outputStreamingDisabled]');
+  } else if (event.data === 'outputStreamingToggle') {
+    outputStreaming = !outputStreaming;
+    if (outputStreaming) websocket.send('[outputStreamingEnabled]');
+    else websocket.send('[outputStreamingDisabled]');
   }
 }
 
