@@ -30,6 +30,8 @@ const wordReplacementCheckbox = document.getElementById('wordReplacementCheckbox
 const wordReplacementContainer = document.getElementById('wordReplacementContainer');
 const addWordPairBtn = document.getElementById('addWordPairBtn');
 
+let removePunctuation = false;
+
 const defaultWordDictionary = {
   'f***': 'fuck',
   'f****': 'fucks',
@@ -76,6 +78,13 @@ function init() {
     saveSettings();
   });
 
+  removePunctuationCheckbox.addEventListener('change', () => {
+    removePunctuation = removePunctuationCheckbox.checked;
+    if (removePunctuation) websocket.send('[removePunctuationEnabled]');
+    else websocket.send('[removePunctuationDisabled]');
+    saveSettings();
+  })
+
   confidenceThresholdCheckbox.addEventListener('change', () => {
     useConfidenceThreshold = confidenceThresholdCheckbox.checked;
     setUseConfidenceThreshold();
@@ -116,6 +125,9 @@ function loadSetings() {
 
   selectedLanguage = localStorage.getItem('selectedLanguage') || 'en-US';
   langSelect.value = selectedLanguage;
+
+  removePunctuation = localStorage.getItem('removePunctuation') === 'true';
+  removePunctuationCheckbox.checked = removePunctuation;
 }
 
 function saveSettings() {
@@ -125,6 +137,7 @@ function saveSettings() {
   localStorage.setItem('confidenceThreshold', confidenceThreshold);
   localStorage.setItem('wordDictionary', JSON.stringify(wordDictionary));
   localStorage.setItem('selectedLanguage', selectedLanguage);
+  localStorage.setItem('removePunctuation', removePunctuation);
 }
 
 function initializeRecognition() {
@@ -186,6 +199,10 @@ function replaceWords(text) {
   return text.split(' ').map(word => wordDictionary[word] || word).join(' ');
 }
 
+function stripPunctuation(text) {
+  return text.replace(/[^a-zA-Z0-9 ]/g, '');
+}
+
 function renderWordPairs() {
   const wordPairList = document.getElementById('wordPairList');
   wordPairList.innerHTML = '';
@@ -238,6 +255,10 @@ function onSpeechRecognized(e) {
   if (useConfidenceThreshold && recognized.confidence < confidenceThreshold) return;
 
   let processedTranscript = recognized.transcript;
+  if (removePunctuation) {
+    processedTranscript = stripPunctuation(processedTranscript);
+  }
+
   if (wordReplacementEnabled) {
     processedTranscript = replaceWords(processedTranscript);
   }
@@ -259,6 +280,7 @@ function onSpeechEnded() {
   transcript = '';
   clearedSection = '';
   manuallyCleared = false;
+  websocket.send('[speechEnded]');
 }
 
 function onOpen(event) {
@@ -312,6 +334,16 @@ function onMessage(event) {
   } else if (event.data === 'replacementToggle') {
     wordReplacementEnabled = !wordReplacementEnabled;
     setWordReplacement();
+  } else if (event.data === 'removePunctuationEnable') {
+    removePunctuation = true;
+    websocket.send('[removePunctuationEnabled]');
+  } else if (event.data === 'removePunctuationDisable') {
+    removePunctuation = false;
+    websocket.send('[removePunctuationDisabled]');
+  } else if (event.data === 'removePunctuationToggle') {
+    removePunctuation = !removePunctuation;
+    if (removePunctuation) websocket.send('[removePunctuationEnabled]');
+    else websocket.send('[removePunctuationDisabled]');
   }
 }
 
