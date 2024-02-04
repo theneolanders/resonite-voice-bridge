@@ -300,7 +300,6 @@
           if (block.type === 'command_block') {
             if (block.fields.trigger.toLowerCase() === inputParts[inputPartsIndex]) {
               // Todo: Check length of trigger with spaces and check inputPartsIndex + X for a match
-              output['trigger'] = block.fields.trigger;
               output['command'] = block.fields.command_name;
               inputPartsIndex++;
             } else if (!block.fields.optional) {
