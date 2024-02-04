@@ -10,10 +10,12 @@
 <body>
   <button id="clear-btn">Clear Workspace</button>
   <button id="save-btn">Save Command</button>
-  <button id="load-btn">Load Command</button>
   <button id="export-btn">Export Command to File</button>
   <button id="import-btn">Import Command from File</button>
   <input type="file" id="file-input" style="display: none;" accept=".json">
+  <select id="saved-commands-dropdown" style="margin: 10px;"></select>
+  <button id="load-selected-btn">Load Selected Command</button>
+  <button id="delete-btn">Delete Selected Command</button>
 
   <div id="blocklyDiv" style="height: 800px; width: 2000px;"></div>
 
@@ -160,64 +162,6 @@
       console.log('Cleared workspace');
     }
 
-    document.getElementById('save-btn').addEventListener('click', () => {
-      const xml = workspaceToJson();
-      localStorage.setItem('blocklyWorkspace', JSON.stringify(xml));
-      console.log('Workspace saved to localStorage');
-    });
-
-    document.getElementById('load-btn').addEventListener('click', () => {
-      loadSavedWorkspace();
-    });
-
-    function loadSavedWorkspace() {
-      const savedWorkspace = localStorage.getItem('blocklyWorkspace');
-      if (savedWorkspace) {
-        const json = JSON.parse(savedWorkspace);
-        workspaceFromJson(json);
-      } else {
-        console.log('No saved workspace found in localStorage, loading default');
-        clearWorkspace();
-      }
-    }
-
-    document.getElementById('clear-btn').addEventListener('click', () => {
-      clearWorkspace();
-    });
-
-    document.getElementById('export-btn').addEventListener('click', () => {
-      workspaceJson = JSON.stringify(workspaceToJson());
-      const blob = new Blob([workspaceJson], { type: 'text/plain;charset=utf-8' });
-      const link = document.createElement('a');
-      link.download = 'workspace.json';
-      link.href = URL.createObjectURL(blob);
-      link.click();
-      console.log('Exported workspace to file');
-    });
-
-    document.getElementById('import-btn').addEventListener('click', () => {
-      document.getElementById('file-input').click();
-    });
-
-    document.getElementById('file-input').addEventListener('change', (event) => {
-      const file = event.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          const text = e.target.result;
-          try {
-            const json = JSON.parse(text);
-            workspaceFromJson(json);
-            console.log('Imported workspace from file');
-          } catch (e) {
-            console.error('Error importing file:', e);
-            alert('Error in importing file. Ensure the file is a valid Blockly XML.');
-          }
-        };
-        reader.readAsText(file);
-      }
-    });
-
     function getBlockDetails() {
       const workspace = Blockly.getMainWorkspace();
       const allBlocks = workspace.getAllBlocks();
@@ -300,7 +244,7 @@
       console.log(blocks);
 
       for (blockId in blocks) {
-        output[blockId] = {};
+        output = {};
 
         const containerBlock = blocks[blockId];
 
@@ -330,11 +274,11 @@
           if (block.type === 'command_block') {
             if (block.fields.trigger.toLowerCase() === inputParts[inputPartsIndex]) {
               // Todo: Check length of trigger with spaces and check inputPartsIndex + X for a match
-              output[blockId]['trigger'] = block.fields.trigger;
-              output[blockId]['command'] = block.fields.command_name;
+              output['trigger'] = block.fields.trigger;
+              output['command'] = block.fields.command_name;
               inputPartsIndex++;
             } else if (!block.fields.optional) {
-              output[blockId] = {
+              output = {
                 'error': 'User input does not match',
                 'user input': inputParts[inputPartsIndex],
                 'valid trigger': block.fields.trigger
@@ -343,13 +287,13 @@
             }
           } else if (block.type === 'parameter_block') {
             content = inputParts.slice(inputPartsIndex, inputPartsIndex + block.fields.len);
-            output[blockId][block.fields.name] = inputParts[inputPartsIndex];
+            output[block.fields.name] = inputParts[inputPartsIndex];
             inputPartsIndex += block.fields.len;
           } else if (block.type === 'text_block') {
             // Todo: Check length of text with spaces and check inputPartsIndex + X for a match
             if (block.fields.text.toLowerCase() !== inputParts[inputPartsIndex]) {
               if (!block.fields.optional) {
-                output[blockId] = {
+                output = {
                   'error': 'User input does not match',
                   'user input': inputParts[inputPartsIndex],
                   'valid text': block.fields.text
@@ -365,7 +309,7 @@
             const textBlocks = block.fields.text_blocks.map(textBlock => textBlock.toLowerCase());
             if (!textBlocks.includes(inputParts[inputPartsIndex])) {
               if (!block.fields.optional) {
-                output[blockId] = {
+                output = {
                   'error': 'User input does not match any elements in OR text block',
                   'user input': inputParts[inputPartsIndex],
                   'valid options': textBlocks.join(', ')
@@ -394,14 +338,121 @@
 
       console.log('Output:', output);
 
-      // for (const [key, value] of Object.entries(output)) {
-      //   outputString += `${key}: ${value}\n`;
-      // }
+      for (const [key, value] of Object.entries(output)) {
+        outputString += `${key}: ${value}\n`;
+      }
 
       document.getElementById('output').innerText = outputString;
     });
 
-    window.addEventListener('load', loadSavedWorkspace);
+    function updateSavedCommandsDropdown() {
+      const dropdown = document.getElementById('saved-commands-dropdown');
+      dropdown.innerHTML = '';
+      const commands = JSON.parse(localStorage.getItem('savedCommands')) || {};
+      Object.keys(commands).forEach(key => {
+        const option = document.createElement('option');
+        option.value = key;
+        option.textContent = key;
+        dropdown.appendChild(option);
+      });
+    }
+
+    function saveCommand() {
+      const xml = workspaceToJson();
+      const commandName = prompt('Enter a name for the command:');
+      if (commandName) {
+        let savedCommands = JSON.parse(localStorage.getItem('savedCommands')) || {};
+        savedCommands[commandName] = xml;
+        localStorage.setItem('savedCommands', JSON.stringify(savedCommands));
+        console.log('Command saved:', commandName);
+        updateSavedCommandsDropdown();
+      }
+    }
+
+    function loadSelectedCommand() {
+      const selectedCommand = document.getElementById('saved-commands-dropdown').value;
+      const savedCommands = JSON.parse(localStorage.getItem('savedCommands')) || {};
+      if (savedCommands[selectedCommand]) {
+        workspaceFromJson(savedCommands[selectedCommand]);
+        console.log('Loaded command:', selectedCommand);
+      } else {
+        console.log('No command found with name:', selectedCommand);
+      }
+    }
+
+
+    function deleteSelectedCommand() {
+      const selectedCommand = document.getElementById('saved-commands-dropdown').value;
+      let savedCommands = JSON.parse(localStorage.getItem('savedCommands')) || {};
+
+      if (savedCommands[selectedCommand]) {
+        // Confirmation prompt
+        const isConfirmed = confirm(`Are you sure you want to delete the command "${selectedCommand}"?`);
+        if (isConfirmed) {
+          delete savedCommands[selectedCommand];
+          localStorage.setItem('savedCommands', JSON.stringify(savedCommands));
+          console.log('Deleted command:', selectedCommand);
+          updateSavedCommandsDropdown();
+          clearWorkspace();
+        } else {
+          console.log('Deletion cancelled.');
+        }
+      } else {
+        console.log('No command found with name:', selectedCommand);
+      }
+    }
+
+    document.getElementById('clear-btn').addEventListener('click', () => {
+      clearWorkspace();
+    });
+
+    document.getElementById('export-btn').addEventListener('click', () => {
+      workspaceJson = JSON.stringify(workspaceToJson());
+      const blob = new Blob([workspaceJson], { type: 'text/plain;charset=utf-8' });
+      const link = document.createElement('a');
+      link.download = 'workspace.json';
+      link.href = URL.createObjectURL(blob);
+      link.click();
+      console.log('Exported workspace to file');
+    });
+
+    document.getElementById('import-btn').addEventListener('click', () => {
+      document.getElementById('file-input').click();
+    });
+
+    document.getElementById('file-input').addEventListener('change', (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const text = e.target.result;
+          try {
+            const json = JSON.parse(text);
+            workspaceFromJson(json);
+            console.log('Imported workspace from file');
+          } catch (e) {
+            console.error('Error importing file:', e);
+            alert('Error in importing file. Ensure the file is a valid Blockly XML.');
+          }
+        };
+        reader.readAsText(file);
+      }
+    });
+
+    document.getElementById('save-btn').addEventListener('click', () => {
+      const xml = workspaceToJson();
+      localStorage.setItem('blocklyWorkspace', JSON.stringify(xml));
+      console.log('Workspace saved to localStorage');
+    });
+
+    document.getElementById('delete-btn').addEventListener('click', deleteSelectedCommand);
+    document.getElementById('save-btn').addEventListener('click', saveCommand);
+    document.getElementById('load-selected-btn').addEventListener('click', loadSelectedCommand);
+
+    window.addEventListener('load', function () {
+      clearWorkspace();
+      updateSavedCommandsDropdown();
+    });
   </script>
 
 </body>
