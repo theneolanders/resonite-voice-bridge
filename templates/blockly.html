@@ -9,7 +9,7 @@
 
 <body>
   <button id="clear-btn">Clear Workspace</button>
-  <button id="save-btn">Save Command</button>
+  <button id="save-btn" disabled>Save Command</button>
   <button id="export-btn">Export Command to File</button>
   <button id="import-btn">Import Command from File</button>
   <input type="file" id="file-input" style="display: none;" accept=".json">
@@ -159,6 +159,7 @@
           isWorkspaceChanged = true;
           const unsaved = document.getElementById('unsaved');
           unsaved.style.display = 'inline';
+          document.getElementById('save-btn').disabled = false;
         }
       });
 
@@ -392,6 +393,7 @@
         isWorkspaceChanged = false;
         const unsaved = document.getElementById('unsaved');
         unsaved.style.display = 'none';
+        document.getElementById('save-btn').disabled = true;
       }, 100);
     }
 
@@ -412,6 +414,7 @@
         isWorkspaceChanged = false;
         const unsaved = document.getElementById('unsaved');
         unsaved.style.display = 'none';
+        document.getElementById('save-btn').disabled = true;
       }
     }
 
@@ -459,10 +462,14 @@
     });
 
     document.getElementById('export-btn').addEventListener('click', () => {
-      workspaceJson = JSON.stringify(workspaceToJson());
+      let downloadName = saveName.length ? saveName : `new-${Date.now()}`;
+      workspaceJson = JSON.stringify({
+        name: downloadName,
+        xml: workspaceToJson()
+      });
       const blob = new Blob([workspaceJson], { type: 'text/plain;charset=utf-8' });
       const link = document.createElement('a');
-      link.download = 'workspace.json';
+      link.download = `rvb-command-${downloadName}.json`;
       link.href = URL.createObjectURL(blob);
       link.click();
       console.log('Exported workspace to file');
@@ -482,11 +489,18 @@
           const text = e.target.result;
           try {
             const json = JSON.parse(text);
-            workspaceFromJson(json);
+            saveName = json['name'];
+            const commandName = document.getElementById('command-name');
+            commandName.innerHTML = saveName;
+            isWorkspaceChanged = true;
+            const unsaved = document.getElementById('unsaved');
+            unsaved.style.display = 'inline';
+            document.getElementById('save-btn').disabled = false;
+            workspaceFromJson(json['xml']);
             console.log('Imported workspace from file');
           } catch (e) {
             console.error('Error importing file:', e);
-            alert('Error in importing file. Ensure the file is a valid Blockly XML.');
+            alert('Error in importing file. Ensure the file is a valid command JSON.');
           }
         };
         reader.readAsText(file);
