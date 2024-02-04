@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>Blockly String Builder</title>
+  <script src="https://unpkg.com/blockly/blockly.min.js"></script>
+</head>
+
+<body>
+  <button id="clear-btn">Clear Workspace</button>
+  <button id="save-btn">Save Workspace</button>
+  <button id="load-btn">Load Workspace</button>
+  <button id="export-btn">Export to File</button>
+  <button id="import-btn">Import from File</button>
+  <input type="file" id="file-input" style="display: none;" accept=".json">
+
+  <div id="blocklyDiv" style="height: 800px; width: 2000px;"></div>
+
+  <xml id="toolbox" style="display: none">
+    <block type="comment_block"></block>
+    <block type="container_block"></block>
+    <block type="command_block"></block>
+    <block type="parameter_block"></block>
+    <block type="text_block"></block>
+    <block type="multi_text_block"></block>
+    <block type="multi_text_text_block"></block>
+  </xml>
+
+  <label for="input">Test Input:</label>
+  <input type="text" id="input" style="width: 500px; height: 18px;" value="Jarvis move testObject up by 2 meters dsa">
+
+  <button id="generate-btn">Validate</button>
+  <p id="output"></p>
+
+  <script>
+    Blockly.Blocks['comment_block'] = {
+      init: function () {
+        this.appendDummyInput()
+          .appendField("Comment")
+        this.appendDummyInput()
+          .appendField(new Blockly.FieldMultilineInput("Comment text.\nSupports multiple lines."), "TEXT")
+        this.setPreviousStatement(true, null);
+        this.setNextStatement(true, null);
+        this.setColour('#808080');
+        this.setTooltip("A comment block. Useful for documentation.");
+      }
+    };
+
+    Blockly.Blocks['container_block'] = {
+      init: function () {
+        this.appendDummyInput()
+          .appendField('Wake word')
+          .appendField(new Blockly.FieldTextInput('Jarvis'), 'WAKE_WORD')
+          .appendField('Optional')
+          .appendField(new Blockly.FieldCheckbox('FALSE'), 'WAKE_WORD_OPTIONAL');
+        this.appendStatementInput('CONTENT')
+        this.setColour('#67a55b');
+        this.setTooltip('The top level block for a command. Requires at least one command block.');
+      }
+    };
+
+    Blockly.Blocks['command_block'] = {
+      init: function () {
+        this.appendDummyInput()
+          .appendField("Trigger")
+          .appendField(new Blockly.FieldTextInput("Trigger"), "TRIGGER")
+          .appendField("Command")
+          .appendField(new Blockly.FieldTextInput("Command Name"), "COMMAND_NAME");
+        this.setPreviousStatement(true);
+        this.setNextStatement(true, null);
+        this.setColour('#985ba5');
+        this.setTooltip("A command block.");
+      }
+    };
+
+    Blockly.Blocks['parameter_block'] = {
+      init: function () {
+        this.appendDummyInput()
+          .appendField("Value Name")
+          .appendField(new Blockly.FieldTextInput("Value Name"), "VAL_NAME");
+        this.appendDummyInput()
+          .appendField("Type")
+          .appendField(new Blockly.FieldDropdown([["Text", "text"], ["Number", "number"]]), "TYPE");
+        // Adding length parameter
+        this.appendDummyInput()
+          .appendField("Words")
+          .appendField(new Blockly.FieldNumber(0, 1, Infinity, 1), "LENGTH");
+        this.setPreviousStatement(true, null);
+        this.setNextStatement(true, null);
+        this.setColour('#5ba598');
+        this.setTooltip("A value block.");
+      }
+    };
+
+    Blockly.Blocks['text_block'] = {
+      init: function () {
+        this.appendDummyInput()
+          .appendField("Text")
+          .appendField(new Blockly.FieldTextInput("Filler Text"), "FILLER_TEXT");
+        this.appendDummyInput()
+          .appendField('Optional')
+          .appendField(new Blockly.FieldCheckbox('FALSE'), 'OPTIONAL');
+        this.setPreviousStatement(true, ["text_block", "multi_text_block"]);
+        this.setNextStatement(true, null);
+        this.setColour('#a5985b');
+        this.setTooltip("A text block.");
+      }
+    };
+
+    Blockly.Blocks['multi_text_block'] = {
+      init: function () {
+        this.appendStatementInput('CONTENT')
+          .setCheck(["multi_text_text_block"])
+          .appendField('OR')
+        this.appendDummyInput()
+          .appendField('Optional')
+          .appendField(new Blockly.FieldCheckbox('FALSE'), 'OPTIONAL');
+        this.setPreviousStatement(true, null);
+        this.setNextStatement(true, null);
+        this.setColour('#a55b67');
+        this.setTooltip('A block that can contain multiple text blocks, only one needs to match.');
+      }
+    };
+
+    Blockly.Blocks['multi_text_text_block'] = {
+      init: function () {
+        this.appendDummyInput()
+          .appendField("Option")
+          .appendField(new Blockly.FieldTextInput("OR Text option"), "OR_TEXT");
+        this.setPreviousStatement(true, ['multi_text_block', 'multi_text_text_block']);
+        this.setNextStatement(true, ['multi_text_block', 'multi_text_text_block']);
+        this.setColour('#5b67a5');
+        this.setTooltip("A text block for an OR text block.");
+      }
+    };
+
+
+    const workspace = Blockly.inject('blocklyDiv', {
+      toolbox: document.getElementById('toolbox')
+    });
+
+    function workspaceToJson() {
+      const json = Blockly.serialization.workspaces.save(workspace);
+      return json;
+    }
+
+    function workspaceFromJson(xml) {
+      workspace.clear();
+      Blockly.serialization.workspaces.load(xml, workspace);
+    }
+
+    document.getElementById('save-btn').addEventListener('click', () => {
+      const xml = workspaceToJson();
+      localStorage.setItem('blocklyWorkspace', JSON.stringify(xml));
+      console.log('Workspace saved to localStorage');
+    });
+
+    document.getElementById('load-btn').addEventListener('click', () => {
+      loadSavedWorkspace();
+    });
+
+    function loadSavedWorkspace() {
+      const savedWorkspace = localStorage.getItem('blocklyWorkspace');
+      if (savedWorkspace) {
+        const json = JSON.parse(savedWorkspace);
+        workspaceFromJson(json);
+      } else {
+        console.log('No saved workspace found in localStorage');
+      }
+    }
+
+    document.getElementById('clear-btn').addEventListener('click', () => {
+      workspace.clear();
+      console.log('Cleared workspace');
+    });
+
+    document.getElementById('export-btn').addEventListener('click', () => {
+      workspaceJson = JSON.stringify(workspaceToJson());
+      const blob = new Blob([workspaceJson], { type: 'text/plain;charset=utf-8' });
+      const link = document.createElement('a');
+      link.download = 'workspace.json';
+      link.href = URL.createObjectURL(blob);
+      link.click();
+      console.log('Exported workspace to file');
+    });
+
+    document.getElementById('import-btn').addEventListener('click', () => {
+      document.getElementById('file-input').click();
+    });
+
+    document.getElementById('file-input').addEventListener('change', (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const text = e.target.result;
+          try {
+            const json = JSON.parse(text);
+            workspaceFromJson(json);
+            console.log('Imported workspace from file');
+          } catch (e) {
+            console.error('Error importing file:', e);
+            alert('Error in importing file. Ensure the file is a valid Blockly XML.');
+          }
+        };
+        reader.readAsText(file);
+      }
+    });
+
+    function getBlockDetails() {
+      const workspace = Blockly.getMainWorkspace();
+      const allBlocks = workspace.getAllBlocks();
+
+      const organizedBlocks = {};
+
+      let currentContainerBlockId = null;
+      let currentMultiTextBlockId = null;
+
+      allBlocks.forEach(block => {
+        if (block.type === 'container_block') {
+          organizedBlocks[block.id] = {
+            id: block.id,
+            type: block.type,
+            fields: {
+              wake_word: workspace.getBlockById(block.id).getFieldValue('WAKE_WORD'),
+              wake_word_optional: workspace.getBlockById(block.id).getFieldValue('WAKE_WORD_OPTIONAL') === 'TRUE' ? true : false
+            },
+            children: []
+          }
+          currentContainerBlockId = block.id;
+        } else if (block.type === 'command_block') {
+          organizedBlocks[currentContainerBlockId].children.push({
+            id: block.id,
+            type: block.type,
+            fields: {
+              command_name: workspace.getBlockById(block.id).getFieldValue('COMMAND_NAME'),
+              trigger: workspace.getBlockById(block.id).getFieldValue('TRIGGER'),
+            }
+          })
+        } else if (block.type === 'parameter_block') {
+          organizedBlocks[currentContainerBlockId].children.push({
+            id: block.id,
+            type: block.type,
+            fields: {
+              name: workspace.getBlockById(block.id).getFieldValue('VAL_NAME'),
+              type: workspace.getBlockById(block.id).getFieldValue('TYPE'),
+              len: workspace.getBlockById(block.id).getFieldValue('LENGTH'),
+            }
+          })
+        } else if (block.type === 'text_block') {
+          organizedBlocks[currentContainerBlockId].children.push({
+            id: block.id,
+            type: block.type,
+            fields: {
+              text: workspace.getBlockById(block.id).getFieldValue('FILLER_TEXT'),
+              optional: workspace.getBlockById(block.id).getFieldValue('OPTIONAL') === 'TRUE' ? true : false,
+            }
+          })
+        } else if (block.type === 'multi_text_block') {
+          organizedBlocks[currentContainerBlockId].children.push({
+            id: block.id,
+            type: block.type,
+            fields: {
+              text_blocks: [],
+              optional: workspace.getBlockById(block.id).getFieldValue('OPTIONAL') === 'TRUE' ? true : false,
+            }
+          })
+          currentMultiTextBlockId = block.id;
+        } else if (block.type === 'multi_text_text_block') {
+          const currentMultiTextBlockIndex = organizedBlocks[currentContainerBlockId].children.findIndex(block => block.id === currentMultiTextBlockId);
+          organizedBlocks[currentContainerBlockId].children[currentMultiTextBlockIndex].fields.text_blocks.push(
+            workspace.getBlockById(block.id).getFieldValue('OR_TEXT')
+          )
+        }
+      });
+
+      return organizedBlocks;
+    }
+
+    function parseInputAgainstCommand(inputString) {
+      const blocks = getBlockDetails();
+      const inputParts = inputString.toLowerCase().split(' ');
+
+      let output = {};
+
+      for (blockId in blocks) {
+        output[blockId] = {};
+
+        const containerBlock = blocks[blockId];
+
+        if (containerBlock.fields.wake_word.toLowerCase() !== inputParts[0]) {
+          if (!containerBlock.fields.wake_word_optional) {
+            output = {
+              'error': 'User input does not match',
+              'user input': inputParts[0],
+              'valid wake word': containerBlock.fields.wake_word
+            }
+            return;
+          }
+        } else {
+          // Remove the first element from inputParts
+          inputParts.shift();
+        }
+
+        let inputPartsIndex = 0;
+
+        for (let i = 0; i < containerBlock.children.length; i++) {
+          const block = containerBlock.children[i];
+
+          // console.log(`Input part ${inputPartsIndex}: ${inputParts[inputPartsIndex]}`);
+          // console.log(`${block.type}:`, block.fields);
+          // console.log('\n');
+
+          if (block.type === 'command_block') {
+            if (block.fields.trigger.toLowerCase() === inputParts[inputPartsIndex]) {
+              // Todo: Check length of trigger with spaces and check inputPartsIndex + X for a match
+              output[blockId]['trigger'] = block.fields.trigger;
+              output[blockId]['command'] = block.fields.command_name;
+              inputPartsIndex++;
+            } else if (!block.fields.optional) {
+              output[blockId] = {
+                'error': 'User input does not match',
+                'user input': inputParts[inputPartsIndex],
+                'valid trigger': block.fields.trigger
+              }
+              i = containerBlock.children.length;
+            }
+          } else if (block.type === 'parameter_block') {
+            content = inputParts.slice(inputPartsIndex, inputPartsIndex + block.fields.len);
+            output[blockId][block.fields.name] = inputParts[inputPartsIndex];
+            inputPartsIndex += block.fields.len;
+          } else if (block.type === 'text_block') {
+            // Todo: Check length of text with spaces and check inputPartsIndex + X for a match
+            if (block.fields.text.toLowerCase() !== inputParts[inputPartsIndex]) {
+              if (!block.fields.optional) {
+                output[blockId] = {
+                  'error': 'User input does not match',
+                  'user input': inputParts[inputPartsIndex],
+                  'valid text': block.fields.text
+                }
+                i = containerBlock.children.length;
+              }
+            } else {
+              // Todo: Check length of text with spaces and check inputPartsIndex + X for a match
+              // Skip the optional text block
+              inputPartsIndex++;
+            }
+          } else if (block.type === 'multi_text_block') {
+            const textBlocks = block.fields.text_blocks.map(textBlock => textBlock.toLowerCase());
+            if (!textBlocks.includes(inputParts[inputPartsIndex])) {
+              if (!block.fields.optional) {
+                output[blockId] = {
+                  'error': 'User input does not match any elements in OR text block',
+                  'user input': inputParts[inputPartsIndex],
+                  'valid options': textBlocks.join(', ')
+                }
+                i = containerBlock.children.length;
+              }
+            } else {
+              inputPartsIndex++;
+            }
+          }
+        }
+      };
+
+      return output || {};
+    }
+
+    document.getElementById('generate-btn').addEventListener('click', () => {
+      const workspace = Blockly.getMainWorkspace();
+
+      let outputString = '';
+      const blocks = workspace.getAllBlocks(false);
+
+      const inputString = document.getElementById('input').value;
+
+      output = parseInputAgainstCommand(inputString);
+
+      console.log('Output:', output);
+
+      // for (const [key, value] of Object.entries(output)) {
+      //   outputString += `${key}: ${value}\n`;
+      // }
+
+      document.getElementById('output').innerText = outputString;
+    });
+
+    window.addEventListener('load', loadSavedWorkspace);
+  </script>
+
+</body>
+
+</html>
