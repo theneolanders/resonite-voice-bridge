@@ -3,23 +3,23 @@
 
 <head>
   <meta charset="utf-8">
-  <title>Blockly String Builder</title>
+  <title>Blockly Command Builder</title>
   <script src="https://unpkg.com/blockly/blockly.min.js"></script>
 </head>
 
 <body>
   <button id="clear-btn">Clear Workspace</button>
-  <button id="save-btn">Save Workspace</button>
-  <button id="load-btn">Load Workspace</button>
-  <button id="export-btn">Export to File</button>
-  <button id="import-btn">Import from File</button>
+  <button id="save-btn">Save Command</button>
+  <button id="load-btn">Load Command</button>
+  <button id="export-btn">Export Command to File</button>
+  <button id="import-btn">Import Command from File</button>
   <input type="file" id="file-input" style="display: none;" accept=".json">
 
   <div id="blocklyDiv" style="height: 800px; width: 2000px;"></div>
 
   <xml id="toolbox" style="display: none">
     <block type="comment_block"></block>
-    <block type="container_block"></block>
+    <!-- <block type="container_block"></block> -->
     <block type="command_block"></block>
     <block type="parameter_block"></block>
     <block type="text_block"></block>
@@ -34,6 +34,8 @@
   <p id="output"></p>
 
   <script>
+    const defaultBlock = '{"blocks":{"languageVersion":0,"blocks":[{"type":"container_block","id":"i/)s$zu85s8z/%wou!Gi","x":15,"y":15,"deletable":false,"fields":{"WAKE_WORD":"Jarvis","WAKE_WORD_OPTIONAL":false}}]}}';
+
     Blockly.Blocks['comment_block'] = {
       init: function () {
         this.appendDummyInput()
@@ -55,8 +57,10 @@
           .appendField('Optional')
           .appendField(new Blockly.FieldCheckbox('FALSE'), 'WAKE_WORD_OPTIONAL');
         this.appendStatementInput('CONTENT')
-        this.setColour('#67a55b');
+        this.setColour(120);
         this.setTooltip('The top level block for a command. Requires at least one command block.');
+        this.contextMenu = false;
+        this.deletable_ = false;
       }
     };
 
@@ -69,7 +73,7 @@
           .appendField(new Blockly.FieldTextInput("Command Name"), "COMMAND_NAME");
         this.setPreviousStatement(true);
         this.setNextStatement(true, null);
-        this.setColour('#985ba5');
+        this.setColour(230);
         this.setTooltip("A command block.");
       }
     };
@@ -88,7 +92,7 @@
           .appendField(new Blockly.FieldNumber(0, 1, Infinity, 1), "LENGTH");
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);
-        this.setColour('#5ba598');
+        this.setColour(290);
         this.setTooltip("A value block.");
       }
     };
@@ -118,7 +122,7 @@
           .appendField(new Blockly.FieldCheckbox('FALSE'), 'OPTIONAL');
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);
-        this.setColour('#a55b67');
+        this.setColour('#a52b67');
         this.setTooltip('A block that can contain multiple text blocks, only one needs to match.');
       }
     };
@@ -130,7 +134,7 @@
           .appendField(new Blockly.FieldTextInput("OR Text option"), "OR_TEXT");
         this.setPreviousStatement(true, ['multi_text_block', 'multi_text_text_block']);
         this.setNextStatement(true, ['multi_text_block', 'multi_text_text_block']);
-        this.setColour('#5b67a5');
+        this.setColour('#5ba5AF');
         this.setTooltip("A text block for an OR text block.");
       }
     };
@@ -150,6 +154,12 @@
       Blockly.serialization.workspaces.load(xml, workspace);
     }
 
+    function clearWorkspace() {
+      workspace.clear();
+      workspaceFromJson(JSON.parse(defaultBlock));
+      console.log('Cleared workspace');
+    }
+
     document.getElementById('save-btn').addEventListener('click', () => {
       const xml = workspaceToJson();
       localStorage.setItem('blocklyWorkspace', JSON.stringify(xml));
@@ -166,13 +176,13 @@
         const json = JSON.parse(savedWorkspace);
         workspaceFromJson(json);
       } else {
-        console.log('No saved workspace found in localStorage');
+        console.log('No saved workspace found in localStorage, loading default');
+        clearWorkspace();
       }
     }
 
     document.getElementById('clear-btn').addEventListener('click', () => {
-      workspace.clear();
-      console.log('Cleared workspace');
+      clearWorkspace();
     });
 
     document.getElementById('export-btn').addEventListener('click', () => {
@@ -217,8 +227,11 @@
       let currentContainerBlockId = null;
       let currentMultiTextBlockId = null;
 
+      console.log(allBlocks);
+
       allBlocks.forEach(block => {
         if (block.type === 'container_block') {
+          console.log(block);
           organizedBlocks[block.id] = {
             id: block.id,
             type: block.type,
@@ -283,6 +296,8 @@
       const inputParts = inputString.toLowerCase().split(' ');
 
       let output = {};
+
+      console.log(blocks);
 
       for (blockId in blocks) {
         output[blockId] = {};
