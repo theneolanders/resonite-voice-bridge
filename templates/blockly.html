@@ -17,6 +17,8 @@
   <button id="load-selected-btn">Load Selected Command</button>
   <button id="delete-btn">Delete Selected Command</button>
 
+  <div>Editing <span id="command-name">New Command</span> <span id="unsaved" style="display: none;">(Modified)</span>
+  </div>
   <div id="blocklyDiv" style="height: 800px; width: 2000px;"></div>
 
   <xml id="toolbox" style="display: none">
@@ -36,8 +38,6 @@
   <p id="output"></p>
 
   <script>
-    const defaultBlock = '{"blocks":{"languageVersion":0,"blocks":[{"type":"container_block","id":"i/)s$zu85s8z/%wou!Gi","x":15,"y":15,"deletable":false,"fields":{"WAKE_WORD":"Jarvis","WAKE_WORD_OPTIONAL":false}}]}}';
-
     Blockly.Blocks['comment_block'] = {
       init: function () {
         this.appendDummyInput()
@@ -141,16 +141,26 @@
       }
     };
 
+    const defaultBlock = '{"blocks":{"languageVersion":0,"blocks":[{"type":"container_block","id":"i/)s$zu85s8z/%wou!Gi","x":15,"y":15,"deletable":false,"fields":{"WAKE_WORD":"Jarvis","WAKE_WORD_OPTIONAL":false}}]}}';
+
     let isWorkspaceChanged = false;
+
+    let saveName = '';
 
     function initBlockly() {
       const workspace = Blockly.inject('blocklyDiv', {
         toolbox: document.getElementById('toolbox')
       });
 
-      // Listener for changes in the workspace
-      workspace.addChangeListener(() => {
-        isWorkspaceChanged = true;
+      workspace.addChangeListener((event) => {
+        // Check if the event is a block creation, deletion, or a change in block properties
+        if (event.type === Blockly.Events.BLOCK_CREATE ||
+          event.type === Blockly.Events.BLOCK_DELETE ||
+          event.type === Blockly.Events.BLOCK_CHANGE) {
+          isWorkspaceChanged = true;
+          const unsaved = document.getElementById('unsaved');
+          unsaved.style.display = 'inline';
+        }
       });
 
       return workspace;
@@ -181,6 +191,9 @@
         workspaceFromJson(JSON.parse(defaultBlock));
         console.log('Cleared workspace');
         isWorkspaceChanged = false;
+        const commandName = document.getElementById('command-name');
+        commandName.innerHTML = 'New Command';
+        resetModified();
       }
     }
 
@@ -375,19 +388,31 @@
       });
     }
 
+    function resetModified() {
+      setTimeout(() => {
+        isWorkspaceChanged = false;
+        const unsaved = document.getElementById('unsaved');
+        unsaved.style.display = 'none';
+      }, 100);
+    }
+
     function saveCommand() {
+      if (!saveName.length) {
+        saveName = prompt('Enter a name for the command:');
+      }
       const xml = workspaceToJson();
-      const commandName = prompt('Enter a name for the command:');
-      if (commandName) {
+      if (saveName) {
         let savedCommands = JSON.parse(localStorage.getItem('savedCommands')) || {};
-        savedCommands[commandName] = {
+        savedCommands[saveName] = {
           xml: xml,
           blockDetails: getBlockDetails()
         };
         localStorage.setItem('savedCommands', JSON.stringify(savedCommands));
-        console.log('Command saved:', commandName);
+        console.log('Command saved:', saveName);
         updateSavedCommandsDropdown();
         isWorkspaceChanged = false;
+        const unsaved = document.getElementById('unsaved');
+        unsaved.style.display = 'none';
       }
     }
 
@@ -401,7 +426,10 @@
         } else {
           console.log('No command found with name:', selectedCommand);
         }
-        isWorkspaceChanged = false; // Reset the change tracker
+        const commandName = document.getElementById('command-name');
+        commandName.innerHTML = selectedCommand;
+        saveName = selectedCommand;
+        resetModified();
       }
     }
 
