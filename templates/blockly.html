@@ -24,6 +24,9 @@
   <xml id="toolbox" style="display: none">
     <block type="comment_block"></block>
     <block type="command_block"></block>
+    <block type="no_trigger_command_block"></block>
+    <block type="multi_trigger_command_block"></block>
+    <block type="multi_trigger_command_text_block"></block>
     <block type="parameter_block"></block>
     <block type="text_block"></block>
     <block type="multi_text_block"></block>
@@ -31,7 +34,8 @@
   </xml>
 
   <label for="input">Test Input:</label>
-  <input type="text" id="input" style="width: 500px; height: 18px;" value="Hey there Jarvis move the example object up by about 2 meters now">
+  <input type="text" id="input" style="width: 500px; height: 18px;"
+    value="Hey there Jarvis move the example object up by about 2 meters now">
 
   <button id="generate-btn">Validate</button>
   <p id="output"></p>
@@ -58,10 +62,11 @@
           .appendField('Optional')
           .appendField(new Blockly.FieldCheckbox('FALSE'), 'WAKE_WORD_OPTIONAL');
         this.appendStatementInput('CONTENT')
-        this.setColour(120);
+        this.setColour('#444444');
         this.setTooltip('The top level block for a command. Requires at least one command block.');
         this.contextMenu = false;
         this.deletable_ = false;
+        this.movable_ = false;
       }
     };
 
@@ -72,10 +77,22 @@
           .appendField(new Blockly.FieldTextInput("Trigger"), "TRIGGER")
           .appendField("Command")
           .appendField(new Blockly.FieldTextInput("Command Name"), "COMMAND_NAME");
-        this.setPreviousStatement(true);
+        this.setPreviousStatement(true, "multi_text_block");
         this.setNextStatement(true, null);
         this.setColour(230);
         this.setTooltip("A command block.");
+      }
+    };
+
+    Blockly.Blocks['no_trigger_command_block'] = {
+      init: function () {
+        this.appendDummyInput()
+          .appendField("Command")
+          .appendField(new Blockly.FieldTextInput("Command Name"), "COMMAND_NAME");
+        this.setPreviousStatement(true, "multi_text_block");
+        this.setNextStatement(true, null);
+        this.setColour(190);
+        this.setTooltip("A command block that does not require a trigger.");
       }
     };
 
@@ -91,9 +108,9 @@
         this.appendDummyInput()
           .appendField("Words")
           .appendField(new Blockly.FieldNumber(0, 1, Infinity, 1), "LENGTH");
-        this.setPreviousStatement(true, null);
+        this.setPreviousStatement(true, "multi_text_block");
         this.setNextStatement(true, null);
-        this.setColour(290);
+        this.setColour(130);
         this.setTooltip("A value block.");
       }
     };
@@ -123,7 +140,7 @@
           .appendField(new Blockly.FieldCheckbox('FALSE'), 'OPTIONAL');
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);
-        this.setColour('#a52b67');
+        this.setColour('a52b67');
         this.setTooltip('A block that can contain multiple text blocks, only one needs to match.');
       }
     };
@@ -134,9 +151,36 @@
           .appendField("Option")
           .appendField(new Blockly.FieldTextInput("OR Text option"), "OR_TEXT");
         this.setPreviousStatement(true, ['multi_text_block', 'multi_text_text_block']);
-        this.setNextStatement(true, ['multi_text_block', 'multi_text_text_block']);
-        this.setColour('#5ba5AF');
+        this.setNextStatement(true, ['multi_text_text_block']);
+        this.setColour('7a1f4d');
         this.setTooltip("A text block for an OR text block.");
+      }
+    };
+
+    Blockly.Blocks['multi_trigger_command_block'] = {
+      init: function () {
+        this.appendStatementInput('CONTENT')
+          .setCheck(["multi_trigger_command_text_block"])
+          .appendField('Triggers')
+        this.appendDummyInput()
+          .appendField("Command Name")
+          .appendField(new Blockly.FieldTextInput("Command"), "COMMAND_NAME");
+        this.setPreviousStatement(true, null);
+        this.setNextStatement(true, null);
+        this.setColour(260);
+        this.setTooltip('A command block that can contain multiple trigger blocks, only one needs to match.');
+      }
+    };
+
+    Blockly.Blocks['multi_trigger_command_text_block'] = {
+      init: function () {
+        this.appendDummyInput()
+          .appendField("Trigger")
+          .appendField(new Blockly.FieldTextInput("Trigger Text option"), "TRIGGER_TEXT");
+        this.setPreviousStatement(true, ['multi_trigger_command_block', 'multi_trigger_command_text_block']);
+        this.setNextStatement(true, ['multi_trigger_command_text_block']);
+        this.setColour('#452b67');
+        this.setTooltip("A trigger block for a multi-trigger command block.");
       }
     };
 
@@ -152,7 +196,6 @@
       });
 
       workspace.addChangeListener((event) => {
-        // Check if the event is a block creation, deletion, or a change in block properties
         if (event.type === Blockly.Events.BLOCK_CREATE ||
           event.type === Blockly.Events.BLOCK_DELETE ||
           event.type === Blockly.Events.BLOCK_CHANGE) {
@@ -205,6 +248,7 @@
 
       let currentContainerBlockId = null;
       let currentMultiTextBlockId = null;
+      let currentMultiTriggerCommandBlockId = null;
 
       allBlocks.forEach(block => {
         if (block.type === 'container_block') {
@@ -225,6 +269,14 @@
             fields: {
               command_name: workspace.getBlockById(block.id).getFieldValue('COMMAND_NAME'),
               trigger: workspace.getBlockById(block.id).getFieldValue('TRIGGER'),
+            }
+          })
+        } else if (block.type === 'no_trigger_command_block') {
+          organizedBlocks[currentContainerBlockId].children.push({
+            id: block.id,
+            type: block.type,
+            fields: {
+              command_name: workspace.getBlockById(block.id).getFieldValue('COMMAND_NAME'),
             }
           })
         } else if (block.type === 'parameter_block') {
@@ -261,6 +313,21 @@
           organizedBlocks[currentContainerBlockId].children[currentMultiTextBlockIndex].fields.text_blocks.push(
             workspace.getBlockById(block.id).getFieldValue('OR_TEXT')
           )
+        } else if (block.type === 'multi_trigger_command_block') {
+          organizedBlocks[currentContainerBlockId].children.push({
+            id: block.id,
+            type: block.type,
+            fields: {
+              command_name: workspace.getBlockById(block.id).getFieldValue('COMMAND_NAME'),
+              trigger_blocks: []
+            }
+          });
+          currentMultiTriggerCommandBlockId = block.id;
+        } else if (block.type === 'multi_trigger_command_text_block') {
+          const currentMultiTriggerCommandBlockIndex = organizedBlocks[currentContainerBlockId].children.findIndex(block => block.id === currentMultiTriggerCommandBlockId);
+          organizedBlocks[currentContainerBlockId].children[currentMultiTriggerCommandBlockIndex].fields.trigger_blocks.push(
+            workspace.getBlockById(block.id).getFieldValue('TRIGGER_TEXT')
+          );
         }
       });
 
@@ -299,7 +366,9 @@
         for (let i = 0; i < containerBlock.children.length; i++) {
           const block = containerBlock.children[i];
 
-          if (block.type === 'command_block') {
+          if (block.type === 'no_trigger_command_block') {
+            output['command'] = block.fields.command_name;
+          } else if (block.type === 'command_block') {
             const triggerText = block.fields.trigger.toLowerCase();
             const triggerParts = triggerText.split(' ');
             inputTriggerText = inputParts[inputPartsIndex];
@@ -347,7 +416,6 @@
 
             let foundMatch = false;
 
-            // Check each textBlock against the inputParts with the correct offset for spaces to see if a match is found
             for (let j = 0; j < textBlocks.length; j++) {
               const textBlock = textBlocks[j];
               const textBlockParts = textBlock.split(' ');
@@ -369,6 +437,32 @@
                 i = containerBlock.children.length;
               }
             }
+          } else if (block.type === 'multi_trigger_command_block') {
+            const triggerBlocks = block.fields.trigger_blocks.map(triggerBlock => triggerBlock.toLowerCase());
+
+            let foundMatch = false;
+
+            for (let j = 0; j < triggerBlocks.length; j++) {
+              const triggerBlock = triggerBlocks[j];
+              const triggerBlockParts = triggerBlock.split(' ');
+              inputTriggerBlockText = inputParts.slice(inputPartsIndex, inputPartsIndex + triggerBlockParts.length).join(' ');
+              if (triggerBlock === inputTriggerBlockText) {
+                inputPartsIndex += triggerBlockParts.length;
+                foundMatch = true;
+                break;
+              }
+            }
+
+            if (!foundMatch) {
+              output = {
+                'error': 'User input does not match any elements in multi-trigger command block',
+                'user input': inputParts[inputPartsIndex],
+                'valid options': triggerBlocks.join(', ')
+              }
+              i = containerBlock.children.length;
+            }
+
+            output['command'] = block.fields.command_name;
           }
         }
       };
