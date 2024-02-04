@@ -65,7 +65,6 @@ function init() {
   clearBtn.addEventListener('click', clearTranscript);
   wordReplacementCheckbox.addEventListener('change', () => {
     wordReplacementEnabled = wordReplacementCheckbox.checked;
-    wordReplacementContainer.style.display = wordReplacementEnabled ? "block" : "none";
     websocket.send(wordReplacementEnabled ? '[replacementEnabled]' : '[replacementDisabled]');
     saveSettings();
   });
@@ -411,5 +410,18 @@ function onError(event) {
 function onClose(event) {
   document.getElementById("websocketStatus").innerHTML = '<span style="color: red;">Disconnected from backend</span>';
 }
+
+document.querySelectorAll('.accordion-button').forEach(button => {
+  button.addEventListener('click', () => {
+    const accordionContent = button.nextElementSibling;
+    button.classList.toggle('active'); // Toggles the 'active' class on the button
+    if (button.classList.contains('active')) {
+      accordionContent.style.display = 'block';
+    } else {
+      accordionContent.style.display = 'none';
+    }
+  });
+});
+
 
 window.addEventListener("load", init, false);

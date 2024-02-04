@@ -10,232 +10,312 @@
 </head>
 
 <body>
-    <header>
-        <img src="static/logo.png" alt="Resonite Voice Bridge">
-        <h1>Resonite Voice Bridge</h1>
-        <hr />
-    </header>
-    <p class="status">Websocket: <span id="websocketStatus">Disconnected</span></p>
-    <p class="status">Microphone: <span id="micStatus">Waiting for permission</span></p>
-    <p class="status">Language:
-        <select id="languageSelect">
-            <option value="en-US">English (United States)</option>
-            <option value="en-GB">English (United Kingdom)</option>
-            <option value="es-ES">Spanish (Spain)</option>
-            <option value="es-MX">Spanish (Mexico)</option>
-            <option value="fr-FR">French (France)</option>
-            <option value="de-DE">German (Germany)</option>
-            <option value="it-IT">Italian (Italy)</option>
-            <option value="pt-PT">Portuguese (Portugal)</option>
-            <option value="pt-BR">Portuguese (Brazil)</option>
-            <option value="ru-RU">Russian (Russia)</option>
-            <option value="zh-CN">Chinese (Simplified, China)</option>
-            <option value="zh-TW">Chinese (Traditional, Taiwan)</option>
-            <option value="ja-JP">Japanese (Japan)</option>
-            <option value="ko-KR">Korean (South Korea)</option>
-            <option value="ar-SA">Arabic (Saudi Arabia)</option>
-            <option value="hi-IN">Hindi (India)</option>
-        </select>
-    </p>
-    <p style="font-style: italic;">Note: Changing languages will temporarily disable the microphone, automatically
-        re-enabling it if it was already enabled.</p>
-    <p class="status" id="error"></p>
-    <button id="toggleMicBtn" class="btn">Toggle Microphone</button>
-    <button id="clearBtn" class="btn">Clear Transcript</button>
-    <div id="settingsWrapper" class="background">
-        <h3 style="text-decoration: none; margin: 5px;">Settings</h3>
-    <label for="debugModeCheckbox" class="checkbox-label">
-        <input type="checkbox" id="debugModeCheckbox" class="checkbox-input">
-        Enable Debug Mode
-    </label>
-
-    <label for="outputStreamingCheckbox" class="checkbox-label">
-        <input type="checkbox" id="outputStreamingCheckbox" class="checkbox-input" checked>
-        Stream Output
-    </label>
-
-    <label for="removePunctuationCheckbox" class="checkbox-label">
-        <input type="checkbox" id="removePunctuationCheckbox" class="checkbox-input">
-        Remove Punctuation
-    </label>
-
-    <label for="confidenceThresholdCheckbox" class="checkbox-label">
-        <input type="checkbox" id="confidenceThresholdCheckbox" class="checkbox-input">
-        Enable Confidence Threshold
-    </label>
-
-    <label for="wordReplacementCheckbox" class="checkbox-label">
-        <input type="checkbox" id="wordReplacementCheckbox" class="checkbox-input">
-        Enable Word Replacement
-    </label>
-    </div>
-
-    <div class="background">
-        <h3 style="text-decoration: none;">Speech Output:</h3>
-        <p id="sttOutput"></p>
-    </div>
-
-    <div id="confidenceThresholdWrapper" class="background" style="display: none;">
-        <h3 style="text-decoration: none;">Confidence Threshold</h3>
-        <div id="confidenceThresholdInputWrapper">
-            <label for="confidenceThresholdInput" id="confidenceThresholdInputLabel">
-                Confidence Threshold Value (0.0-1.0):
-                <input type="number" id="confidenceThresholdInput" style="margin-left: 5px;" min="0" max="1" step="0.01"
-                    placeholder="0.00" value="0.0">
-            </label>
-        </div>
-        <p id="confidenceValue" class="background" style="display: none;">Confidence: <span id="confidenceScore"></span>
+    <div class="container">
+        <header>
+            <img src="static/logo.png" alt="Resonite Voice Bridge">
+            <h1>Resonite Voice Bridge</h1>
+            <hr />
+        </header>
+        <p class="status">Websocket: <span id="websocketStatus">Disconnected</span></p>
+        <p class="status">Microphone: <span id="micStatus">Waiting for permission</span></p>
+        <p class="status">Language:
+            <select id="languageSelect">
+                <option value="en-US">English (United States)</option>
+                <option value="en-GB">English (United Kingdom)</option>
+                <option value="es-ES">Spanish (Spain)</option>
+                <option value="es-MX">Spanish (Mexico)</option>
+                <option value="fr-FR">French (France)</option>
+                <option value="de-DE">German (Germany)</option>
+                <option value="it-IT">Italian (Italy)</option>
+                <option value="pt-PT">Portuguese (Portugal)</option>
+                <option value="pt-BR">Portuguese (Brazil)</option>
+                <option value="ru-RU">Russian (Russia)</option>
+                <option value="zh-CN">Chinese (Simplified, China)</option>
+                <option value="zh-TW">Chinese (Traditional, Taiwan)</option>
+                <option value="ja-JP">Japanese (Japan)</option>
+                <option value="ko-KR">Korean (South Korea)</option>
+                <option value="ar-SA">Arabic (Saudi Arabia)</option>
+                <option value="hi-IN">Hindi (India)</option>
+            </select>
         </p>
-    </div>
-    <div id="wordReplacementContainer" class="background">
-        <h3 style="text-decoration: none;">Word Replacement</h3>
-        <div id="wordPairList"></div>
-        <div id="addWordPairForm">
-            <input type="text" id="originalWord" placeholder="Original Word">
-            <input type="text" id="replacementWord" placeholder="Replacement Word">
-            <button id="addWordPairBtn" class="btn">Add Word Pair</button>
+        <p style="font-style: italic;">Note: Changing languages will temporarily disable the microphone, automatically
+            re-enabling it if it was already enabled.</p>
+        <p class="status" id="error"></p>
+        <button id="toggleMicBtn" class="btn">Toggle Microphone</button>
+        <button id="clearBtn" class="btn">Clear Transcript</button>
+
+        <div id="outputWrapper" class="background">
+            <h4 style="margin-top:0; margin-bottom: 0.5em">Transcript:</h4>
+            <p id="sttOutput"></p>
+        </div>
+
+        <div id="confidenceThresholdWrapper" class="background" style="display: none;">
+            <h4 style="text-decoration: none; margin-top: 0; margin-bottom: 0.5em;    ">Confidence Threshold</h4>
+            <div id="confidenceThresholdInputWrapper">
+                <label for="confidenceThresholdInput" id="confidenceThresholdInputLabel">
+                    Confidence Threshold Value (0.0-1.0):
+                    <input type="number" id="confidenceThresholdInput" style="margin-left: 5px;" min="0" max="1"
+                        step="0.01" placeholder="0.00" value="0.0">
+                </label>
+            </div>
+            <p id="confidenceValue" style="display: none;">Confidence: <span
+                    id="confidenceScore"></span>
+            </p>
+        </div>
+
+        <div class="accordion">
+            <button class="accordion-button">Settings</button>
+            <div id="settingsContent" class="accordion-content">
+
+                <div id="settingsWrapper">
+                    <label for="debugModeCheckbox" class="checkbox-label">
+                        <input type="checkbox" id="debugModeCheckbox" class="checkbox-input">
+                        Enable Debug Mode
+                    </label>
+
+                    <label for="outputStreamingCheckbox" class="checkbox-label">
+                        <input type="checkbox" id="outputStreamingCheckbox" class="checkbox-input" checked>
+                        Stream Output
+                    </label>
+
+                    <label for="removePunctuationCheckbox" class="checkbox-label">
+                        <input type="checkbox" id="removePunctuationCheckbox" class="checkbox-input">
+                        Remove Punctuation
+                    </label>
+
+                    <label for="confidenceThresholdCheckbox" class="checkbox-label">
+                        <input type="checkbox" id="confidenceThresholdCheckbox" class="checkbox-input">
+                        Enable Confidence Threshold
+                    </label>
+
+                    <label for="wordReplacementCheckbox" class="checkbox-label">
+                        <input type="checkbox" id="wordReplacementCheckbox" class="checkbox-input">
+                        Enable Word Replacement
+                    </label>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="accordion">
+            <button class="accordion-button">Word Replacement</button>
+            <div id="wordReplacementContent" class="accordion-content">
+                <div id="wordReplacementContainer">
+                    <div id="wordPairList"></div>
+                    <div id="addWordPairForm">
+                        <input type="text" id="originalWord" placeholder="Original Word">
+                        <input type="text" id="replacementWord" placeholder="Replacement Word">
+                        <button id="addWordPairBtn" class="btn">Add Word Pair</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion">
+            <button class="accordion-button">Command Editor</button>
+            <div id="commandEditorContent" class="accordion-content">
+
+
+            </div>
+        </div>
+
+        <div class="accordion">
+            <button class="accordion-button">Documentation</button>
+            <div id="documentationContent" class="accordion-content">
+                <h2>Usage</h2>
+                <p><strong><i>This page requires Google Chrome, as it uses the Web Speech API. Please note that the
+                            speech
+                            recognition API
+                            in use is provided by Google.</i></strong></p>
+                <p>This page will send any detected speech to a websocket at the following url:
+                    <strong>ws://localhost:6789</strong>
+                </p>
+                <p>The application uses <strong>commands</strong> and <strong>events</strong> to set and monitor the
+                    microphone
+                    state and the configuration options.</p>
+
+                <h3>Options</h3>
+                <p>The following options are available:</p>
+                <ul>
+                    <li><strong>Language</strong>: The language to use for speech recognition. See the list of supported
+                        languages
+                        below.</li>
+                    <li><strong>Debug Mode</strong>: When enabled, debug mode will send a debugConfidence event in
+                        addition
+                        to each
+                        recognition message.</li>
+                    <li><strong>Stream Output</strong>: When enabled, the transcription will be sent after each
+                        recognition
+                        event.
+                        For multi-word transcriptions, this may result in incomplete or incorrect transcriptions being
+                        sent.
+                        This is
+                        because Google's Speech To Text service updates the transcript in real-time as it gains
+                        confidence
+                        about
+                        previous words from later context. When disabled, a single transcript will be sent when the
+                        service
+                        determines the speech input has ended.</li>
+                    <li><strong>Remove Punctuation</strong>: When enabled, punctuation will be removed from the
+                        transcript.
+                        This
+                        means only letters, numbers, and space characters will remain.</li>
+                    <li><strong>Confidence Threshold</strong>: When enabled, the confidence threshold will be used to
+                        filter
+                        out
+                        predictions that are below the threshold. The value is a number between 0.0 and 1.0.</li>
+                    <li><strong>Word Replacement</strong>: When enabled, the user will be able to replace words in the
+                        transcript.
+                        This can be used to uncensor the Google transcript, or to fix recognition errors. By default
+                        this
+                        list is
+                        populated with a list of common profanities.</li>
+                </ul>
+                <p>Each of these options can be toggled and configured using the GUI or via the commands listed below.
+                </p>
+                <p>The value of each setting is persisted across reloads using localStorage.</p>
+
+                <h3>Commands</h3>
+                <h4>Microphone/Recognition</h4>
+                <p>It is advised to disable the microphone access when not actively in use, as anything you say while
+                    the
+                    page is
+                    open and the microphone is active is being sent to Google's servers.</p>
+                <p>Note that the microphone controls for this application are separate from Resonite. You can have your
+                    Resonite mic
+                    open and the application muted, or vice-versa.</p>
+                <ul>
+                    <li><strong>toggle</strong>: Toggles the microphone on and off</li>
+                    <li><strong>enable</strong>: Enables the microphone</li>
+                    <li><strong>disable</strong>: Disables the microphone</li>
+                    <li><strong>clear</strong>: Forcibly clears the transcript (This can be finicky due to the way
+                        Google
+                        changes
+                        predictions once it's more confident)</li>
+                    <li><strong>replacementToggle</strong>: Toggles the word replacement feature on and off</li>
+                    <li><strong>replacementEnable</strong>: Enables the word replacement feature</li>
+                    <li><strong>replacementDisable</strong>: Disables the word replacement feature</li>
+                    <li><strong>removePunctuationToggle</strong>: Toggles the punctuation removal on and off</li>
+                    <li><strong>removePunctuationEnable</strong>: Enables the punctuation removal</li>
+                    <li><strong>removePunctuationDisable</strong>: Disables the punctuation removal</li>
+                    <li><strong>outputStreamingToggle</strong>: Toggles the output streaming on and off</li>
+                    <li><strong>outputStreamingEnable</strong>: Enables the output streaming</li>
+                    <li><strong>outputStreamingDisable</strong>: Disables the output streaming</li>
+                </ul>
+                <h4>Confidence Threshold</h4>
+                <p>When enabled, the confidence threshold will be used to filter out predictions that are below the
+                    threshold. The
+                    value is a number between 0.0 and 1.0</p>
+                <ul>
+                    <li><strong>confidenceToggle</strong>: Toggles the confidence threshold on and off</li>
+                    <li><strong>confidenceEnable</strong>: Enables the confidence threshold</li>
+                    <li><strong>confidenceDisable</strong>: Disables the confidence threshold</li>
+                    <li><strong>confidence=confidenceValue</strong>: Set the minimum confidence threshold required for a
+                        prediction
+                        to be sent. Example: confidence=0.92</li>
+                </ul>
+                <h4>Debug Mode</h4>
+                <p>When enabled, debug mode will send a debugConfidence event in addition to each recognition message.
+                </p>
+                <ul>
+                    <li><strong>debugToggle</strong>: Toggles confidence debug mode on and off</li>
+                    <li><strong>debugEnable</strong>: Enables confidence debug mode, this will trigger the display of
+                        the
+                        recognition
+                        confidence and send debugConfidence events, see below for more information.</li>
+                    <li><strong>debugDisable</strong>: Disables confidence debug mode</li>
+                </ul>
+                <h4>Language</h4>
+                <ul>
+                    <li><strong>lang=language-code</strong>: Changes the language. Example: lang=en-US. Supports the
+                        following
+                        language
+                        codes:</li>
+                    <ul>
+                        <li>en-US - English (United States)</li>
+                        <li>en-GB - English (United Kingdom)</li>
+                        <li>es-ES - Spanish (Spain)</li>
+                        <li>es-MX - Spanish (Mexico)</li>
+                        <li>fr-FR - French (France)</li>
+                        <li>de-DE - German (Germany)</li>
+                        <li>it-IT - Italian (Italy)</li>
+                        <li>pt-PT - Portuguese (Portugal)</li>
+                        <li>pt-BR - Portuguese (Brazil)</li>
+                        <li>ru-RU - Russian (Russia)</li>
+                        <li>zh-CN - Chinese (Simplified, China)</li>
+                        <li>zh-TW - Chinese (Traditional, Taiwan)</li>
+                        <li>ja-JP - Japanese (Japan)</li>
+                        <li>ko-KR - Korean (South Korea)</li>
+                        <li>ar-SA - Arabic (Saudi Arabia)</li>
+                        <li>hi-IN - Hindi (India)</li>
+                    </ul>
+                </ul>
+                <p><i>Note: Changing languages will temporarily disable the microphone, automatically re-enabling it if
+                        it
+                        was
+                        already enabled.</i></p>
+                <h3>Events</h3>
+                <p>The server will send the following event messages when the the microphone state or an option changes:
+                <h4>Microphone/Recognition</h4>
+                <ul>
+                    <li><strong>[enabled]</strong>: The microphone has been enabled</li>
+                    <li><strong>[disabled]</strong>: The microphone has been disabled</li>
+                    <li><strong>[cleared]</strong>: The transcript has been manually cleared</li>
+                    <li><strong>[replacementEnabled]</strong>: The word replacement feature has been enabled</li>
+                    <li><strong>[replacementDisabled]</strong>: The word replacement feature has been disabled</li>
+                    <li><strong>[removePunctuationEnabled]</strong>: The punctuation removal feature has been enabled
+                    </li>
+                    <li><strong>[removePunctuationDisabled]</strong>: The punctuation removal feature has been disabled
+                    </li>
+                    <li><strong>[outputStreamingEnabled]</strong>: The output streaming feature has been enabled</li>
+                    <li><strong>[outputStreamingDisabled]</strong>: The output streaming feature has been disabled</li>
+                    <li><strong>[speechEnded]</strong>: Sent whenever Google Chrome has determined that the user has
+                        stopped
+                        speaking</li>
+                </ul>
+                <h4>Confidence Threshold</h4>
+                <p>When enabled the confidence threshold will be used to filter out predictions that are below the
+                    threshold. The
+                    value is a number between 0.0 and 1.0</p>
+                <ul>
+                    <li><strong>[enableConfidence]</strong>: The confidence threshold has been enabled</li>
+                    <li><strong>[disableConfidence]</strong>: The confidence threshold has been disabled</li>
+                    <li><strong>[changedConfidence=confidenceValue]</strong> - Sent when the confidence threshold is
+                        changed.
+                        Example:
+                        [changedConfidence=0.92]</li>
+                </ul>
+                <h4>Debug Mode</h4>
+                <p>When enabled debug mode will send a debugConfidence event in addition to each recognition message.
+                </p>
+                <ul>
+                    <li><strong>[debugEnabled]</strong> - Debug mode has been enabled</li>
+                    <li><strong>[debugDisabled]</strong> - Debug mode has been disabled</li>
+                    <li><strong>[debugConfidence=confidenceValue]</strong> - The confidence value of the latest
+                        recognized
+                        message.
+                        Example:
+                        [debugConfidence=0.92]</li>
+                </ul>
+                <h4>Language</h4>
+                <ul>
+                    <li><strong>[lang=language-code]</strong>: The language has been changed to <em>language-code</em>.
+                        Example:
+                        [lang=en-US]</li>
+
+                </ul>
+                <h3>Notes</h3>
+                <p>Note the [ ] characters in the events to simplify Protoflux parsing.</p>
+                <p>You can add new languages by modifying the JS and HTML files located in _internal/static and
+                    _internal/templates.
+                    Any BCP 47 lanuage tag Google supports should work.</p>
+
+            </div>
         </div>
     </div>
-    <h1 style="text-align: center;">Documentation</h1>
-    <h2>Usage</h2>
-    <p><strong><i>This page requires Google Chrome, as it uses the Web Speech API. Please note that the speech
-                recognition API
-                in use is provided by Google.</i></strong></p>
-    <p>This page will send any detected speech to a websocket at the following url: <strong>ws://localhost:6789</strong>
-    </p>
-    <p>The application uses <strong>commands</strong> and <strong>events</strong> to set and monitor the microphone
-        state and the configuration options.</p>
 
-    <h3>Options</h3>
-    <p>The following options are available:</p>
-    <ul>
-        <li><strong>Language</strong>: The language to use for speech recognition. See the list of supported languages
-            below.</li>
-        <li><strong>Debug Mode</strong>: When enabled, debug mode will send a debugConfidence event in addition to each
-            recognition message.</li>
-        <li><strong>Stream Output</strong>: When enabled, the transcription will be sent after each recognition event. For multi-word transcriptions, this may result in incomplete or incorrect transcriptions being sent. This is because Google's Speech To Text service updates the transcript in real-time as it gains confidence about previous words from later context. When disabled, a single transcript will be sent when the service determines the speech input has ended.</li>
-        <li><strong>Remove Punctuation</strong>: When enabled, punctuation will be removed from the transcript. This means only letters, numbers, and space characters will remain.</li>
-        <li><strong>Confidence Threshold</strong>: When enabled, the confidence threshold will be used to filter out
-            predictions that are below the threshold. The value is a number between 0.0 and 1.0.</li>
-        <li><strong>Word Replacement</strong>: When enabled, the user will be able to replace words in the transcript.
-            This can be used to uncensor the Google transcript, or to fix recognition errors. By default this list is
-            populated with a list of common profanities.</li>
-    </ul>
-    <p>Each of these options can be toggled and configured using the GUI or via the commands listed below.</p>
-    <p>The value of each setting is persisted across reloads using localStorage.</p>
-
-    <h3>Commands</h3>
-    <h4>Microphone/Recognition</h4>
-    <p>It is advised to disable the microphone access when not actively in use, as anything you say while the page is
-        open and the microphone is active is being sent to Google's servers.</p>
-    <p>Note that the microphone controls for this application are separate from Resonite. You can have your Resonite mic
-        open and the application muted, or vice-versa.</p>
-    <ul>
-        <li><strong>toggle</strong>: Toggles the microphone on and off</li>
-        <li><strong>enable</strong>: Enables the microphone</li>
-        <li><strong>disable</strong>: Disables the microphone</li>
-        <li><strong>clear</strong>: Forcibly clears the transcript (This can be finicky due to the way Google changes
-            predictions once it's more confident)</li>
-        <li><strong>replacementToggle</strong>: Toggles the word replacement feature on and off</li>
-        <li><strong>replacementEnable</strong>: Enables the word replacement feature</li>
-        <li><strong>replacementDisable</strong>: Disables the word replacement feature</li>
-        <li><strong>removePunctuationToggle</strong>: Toggles the punctuation removal on and off</li>
-        <li><strong>removePunctuationEnable</strong>: Enables the punctuation removal</li>
-        <li><strong>removePunctuationDisable</strong>: Disables the punctuation removal</li>
-        <li><strong>outputStreamingToggle</strong>: Toggles the output streaming on and off</li>
-        <li><strong>outputStreamingEnable</strong>: Enables the output streaming</li>
-        <li><strong>outputStreamingDisable</strong>: Disables the output streaming</li>
-    </ul>
-    <h4>Confidence Threshold</h4>
-    <p>When enabled, the confidence threshold will be used to filter out predictions that are below the threshold. The
-        value is a number between 0.0 and 1.0</p>
-    <ul>
-        <li><strong>confidenceToggle</strong>: Toggles the confidence threshold on and off</li>
-        <li><strong>confidenceEnable</strong>: Enables the confidence threshold</li>
-        <li><strong>confidenceDisable</strong>: Disables the confidence threshold</li>
-        <li><strong>confidence=confidenceValue</strong>: Set the minimum confidence threshold required for a prediction
-            to be sent. Example: confidence=0.92</li>
-    </ul>
-    <h4>Debug Mode</h4>
-    <p>When enabled, debug mode will send a debugConfidence event in addition to each recognition message.</p>
-    <ul>
-        <li><strong>debugToggle</strong>: Toggles confidence debug mode on and off</li>
-        <li><strong>debugEnable</strong>: Enables confidence debug mode, this will trigger the display of the
-            recognition
-            confidence and send debugConfidence events, see below for more information.</li>
-        <li><strong>debugDisable</strong>: Disables confidence debug mode</li>
-    </ul>
-    <h4>Language</h4>
-    <ul>
-        <li><strong>lang=language-code</strong>: Changes the language. Example: lang=en-US. Supports the following
-            language
-            codes:</li>
-        <ul>
-            <li>en-US - English (United States)</li>
-            <li>en-GB - English (United Kingdom)</li>
-            <li>es-ES - Spanish (Spain)</li>
-            <li>es-MX - Spanish (Mexico)</li>
-            <li>fr-FR - French (France)</li>
-            <li>de-DE - German (Germany)</li>
-            <li>it-IT - Italian (Italy)</li>
-            <li>pt-PT - Portuguese (Portugal)</li>
-            <li>pt-BR - Portuguese (Brazil)</li>
-            <li>ru-RU - Russian (Russia)</li>
-            <li>zh-CN - Chinese (Simplified, China)</li>
-            <li>zh-TW - Chinese (Traditional, Taiwan)</li>
-            <li>ja-JP - Japanese (Japan)</li>
-            <li>ko-KR - Korean (South Korea)</li>
-            <li>ar-SA - Arabic (Saudi Arabia)</li>
-            <li>hi-IN - Hindi (India)</li>
-        </ul>
-    </ul>
-    <p><i>Note: Changing languages will temporarily disable the microphone, automatically re-enabling it if it was
-            already enabled.</i></p>
-    <h3>Events</h3>
-    <p>The server will send the following event messages when the the microphone state or an option changes:
-    <h4>Microphone/Recognition</h4>
-    <ul>
-        <li><strong>[enabled]</strong>: The microphone has been enabled</li>
-        <li><strong>[disabled]</strong>: The microphone has been disabled</li>
-        <li><strong>[cleared]</strong>: The transcript has been manually cleared</li>
-        <li><strong>[replacementEnabled]</strong>: The word replacement feature has been enabled</li>
-        <li><strong>[replacementDisabled]</strong>: The word replacement feature has been disabled</li>
-        <li><strong>[removePunctuationEnabled]</strong>: The punctuation removal feature has been enabled</li>
-        <li><strong>[removePunctuationDisabled]</strong>: The punctuation removal feature has been disabled</li>
-        <li><strong>[outputStreamingEnabled]</strong>: The output streaming feature has been enabled</li>
-        <li><strong>[outputStreamingDisabled]</strong>: The output streaming feature has been disabled</li>
-        <li><strong>[speechEnded]</strong>: Sent whenever Google Chrome has determined that the user has stopped speaking</li>
-    </ul>
-    <h4>Confidence Threshold</h4>
-    <p>When enabled the confidence threshold will be used to filter out predictions that are below the threshold. The
-        value is a number between 0.0 and 1.0</p>
-    <ul>
-        <li><strong>[enableConfidence]</strong>: The confidence threshold has been enabled</li>
-        <li><strong>[disableConfidence]</strong>: The confidence threshold has been disabled</li>
-        <li><strong>[changedConfidence=confidenceValue]</strong> - Sent when the confidence threshold is changed.
-            Example:
-            [changedConfidence=0.92]</li>
-    </ul>
-    <h4>Debug Mode</h4>
-    <p>When enabled debug mode will send a debugConfidence event in addition to each recognition message.</p>
-    <ul>
-        <li><strong>[debugEnabled]</strong> - Debug mode has been enabled</li>
-        <li><strong>[debugDisabled]</strong> - Debug mode has been disabled</li>
-        <li><strong>[debugConfidence=confidenceValue]</strong> - The confidence value of the latest recognized message.
-            Example:
-            [debugConfidence=0.92]</li>
-    </ul>
-    <h4>Language</h4>
-    <ul>
-        <li><strong>[lang=language-code]</strong>: The language has been changed to <em>language-code</em>. Example:
-            [lang=en-US]</li>
-
-    </ul>
-    <h3>Notes</h3>
-    <p>Note the [ ] characters in the events to simplify Protoflux parsing.</p>
-    <p>You can add new languages by modifying the JS and HTML files located in _internal/static and _internal/templates.
-        Any BCP 47 lanuage tag Google supports should work.</p>
     <script type="text/javascript" src="/static/index.js"></script>
+
     <a href="https://github.com/theneolanders/resonite-voice-bridge/" class="github-corner"
         aria-label="View source on GitHub"><svg width="80" height="80" viewBox="0 0 250 250"
             style="fill:#151513; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true">
@@ -247,6 +327,7 @@
                 d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
                 fill="currentColor" class="octo-body"></path>
         </svg></a>
+
     <style>
         .github-corner:hover .octo-arm {
             animation: octocat-wave 560ms ease-in-out
