@@ -206,11 +206,8 @@
       let currentContainerBlockId = null;
       let currentMultiTextBlockId = null;
 
-      console.log(allBlocks);
-
       allBlocks.forEach(block => {
         if (block.type === 'container_block') {
-          console.log(block);
           organizedBlocks[block.id] = {
             id: block.id,
             type: block.type,
@@ -275,8 +272,6 @@
       const inputParts = inputString.toLowerCase().split(' ');
 
       let output = {};
-
-      console.log(blocks);
 
       for (blockId in blocks) {
         output = {};
@@ -366,8 +361,6 @@
       const inputString = document.getElementById('input').value;
 
       output = parseInputAgainstCommand(inputString);
-
-      console.log('Output:', output);
 
       for (const [key, value] of Object.entries(output)) {
         outputString += `${key}: ${value}\n`;
