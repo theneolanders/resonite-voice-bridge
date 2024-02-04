@@ -31,7 +31,7 @@
   </xml>
 
   <label for="input">Test Input:</label>
-  <input type="text" id="input" style="width: 500px; height: 18px;" value="Jarvis move testObject up by 2 meters dsa">
+  <input type="text" id="input" style="width: 500px; height: 18px;" value="Hey there Jarvis move the example object up by about 2 meters now">
 
   <button id="generate-btn">Validate</button>
   <p id="output"></p>
@@ -269,7 +269,7 @@
 
     function parseInputAgainstCommand(inputString) {
       const blocks = getBlockDetails();
-      const inputParts = inputString.toLowerCase().split(' ');
+      let inputParts = inputString.toLowerCase().split(' ');
 
       let output = {};
 
@@ -278,18 +278,20 @@
 
         const containerBlock = blocks[blockId];
 
-        if (containerBlock.fields.wake_word.toLowerCase() !== inputParts[0]) {
+        const wakeWordIndex = inputParts.indexOf(containerBlock.fields.wake_word.toLowerCase());
+        console.log('Wake word index:', wakeWordIndex);
+        if (wakeWordIndex === -1 && !containerBlock.fields.wake_word_optional) {
           if (!containerBlock.fields.wake_word_optional) {
             output = {
-              'error': 'User input does not match',
+              'error': 'Wake word not found',
               'user input': inputParts[0],
               'valid wake word': containerBlock.fields.wake_word
             }
-            return;
+            console.log('Invalid wake word');
+            break;
           }
         } else {
-          // Remove the first element from inputParts
-          inputParts.shift();
+          inputParts = inputParts.slice(wakeWordIndex + 1, inputParts.length);
         }
 
         let inputPartsIndex = 0;
@@ -298,41 +300,66 @@
           const block = containerBlock.children[i];
 
           if (block.type === 'command_block') {
-            if (block.fields.trigger.toLowerCase() === inputParts[inputPartsIndex]) {
-              // Todo: Check length of trigger with spaces and check inputPartsIndex + X for a match
+            const triggerText = block.fields.trigger.toLowerCase();
+            const triggerParts = triggerText.split(' ');
+            inputTriggerText = inputParts[inputPartsIndex];
+            if (triggerText.includes(' ')) {
+              inputTriggerText = inputParts.slice(inputPartsIndex, inputPartsIndex + triggerParts.length).join(' ');
+            }
+
+            if (triggerText === inputTriggerText) {
               output['command'] = block.fields.command_name;
-              inputPartsIndex++;
+              inputPartsIndex += triggerParts.length;
             } else if (!block.fields.optional) {
               output = {
                 'error': 'User input does not match',
-                'user input': inputParts[inputPartsIndex],
-                'valid trigger': block.fields.trigger
+                'user input': inputTriggerText,
+                'valid trigger': triggerText
               }
               i = containerBlock.children.length;
             }
           } else if (block.type === 'parameter_block') {
-            content = inputParts.slice(inputPartsIndex, inputPartsIndex + block.fields.len);
-            output[block.fields.name] = inputParts[inputPartsIndex];
+            output[block.fields.name] = inputParts.slice(inputPartsIndex, inputPartsIndex + block.fields.len).join(' ');
             inputPartsIndex += block.fields.len;
           } else if (block.type === 'text_block') {
-            // Todo: Check length of text with spaces and check inputPartsIndex + X for a match
-            if (block.fields.text.toLowerCase() !== inputParts[inputPartsIndex]) {
+            const textBlockText = block.fields.text.toLowerCase();
+            const textBlockParts = textBlockText.split(' ');
+            inputTextBlockText = inputParts[inputPartsIndex];
+            if (textBlockText.includes(' ')) {
+              inputTextBlockText = inputParts.slice(inputPartsIndex, inputPartsIndex + textBlockParts.length).join(' ');
+            }
+
+            if (textBlockText !== inputTextBlockText) {
               if (!block.fields.optional) {
                 output = {
                   'error': 'User input does not match',
-                  'user input': inputParts[inputPartsIndex],
-                  'valid text': block.fields.text
+                  'user input': inputTextBlockText,
+                  'valid text': textBlockText
                 }
                 i = containerBlock.children.length;
               }
             } else {
-              // Todo: Check length of text with spaces and check inputPartsIndex + X for a match
               // Skip the optional text block
-              inputPartsIndex++;
+              inputPartsIndex += textBlockParts.length;
             }
           } else if (block.type === 'multi_text_block') {
             const textBlocks = block.fields.text_blocks.map(textBlock => textBlock.toLowerCase());
-            if (!textBlocks.includes(inputParts[inputPartsIndex])) {
+
+            let foundMatch = false;
+
+            // Check each textBlock against the inputParts with the correct offset for spaces to see if a match is found
+            for (let j = 0; j < textBlocks.length; j++) {
+              const textBlock = textBlocks[j];
+              const textBlockParts = textBlock.split(' ');
+              inputTextBlockText = inputParts.slice(inputPartsIndex, inputPartsIndex + textBlockParts.length).join(' ');
+              if (textBlock === inputTextBlockText) {
+                inputPartsIndex += textBlockParts.length;
+                foundMatch = true;
+                break;
+              }
+            }
+
+            if (!foundMatch) {
               if (!block.fields.optional) {
                 output = {
                   'error': 'User input does not match any elements in OR text block',
@@ -341,8 +368,6 @@
                 }
                 i = containerBlock.children.length;
               }
-            } else {
-              inputPartsIndex++;
             }
           }
         }
