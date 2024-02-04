@@ -141,10 +141,29 @@
       }
     };
 
+    let isWorkspaceChanged = false;
 
-    const workspace = Blockly.inject('blocklyDiv', {
-      toolbox: document.getElementById('toolbox')
-    });
+    function initBlockly() {
+      const workspace = Blockly.inject('blocklyDiv', {
+        toolbox: document.getElementById('toolbox')
+      });
+
+      // Listener for changes in the workspace
+      workspace.addChangeListener(() => {
+        isWorkspaceChanged = true;
+      });
+
+      return workspace;
+    }
+
+    function checkForUnsavedChanges() {
+      if (isWorkspaceChanged) {
+        return confirm("You have unsaved changes. Are you sure you want to discard them?");
+      }
+      return true;
+    }
+
+    const workspace = initBlockly();
 
     function workspaceToJson() {
       const json = Blockly.serialization.workspaces.save(workspace);
@@ -157,9 +176,12 @@
     }
 
     function clearWorkspace() {
-      workspace.clear();
-      workspaceFromJson(JSON.parse(defaultBlock));
-      console.log('Cleared workspace');
+      if (checkForUnsavedChanges()) {
+        workspace.clear();
+        workspaceFromJson(JSON.parse(defaultBlock));
+        console.log('Cleared workspace');
+        isWorkspaceChanged = false;
+      }
     }
 
     function getBlockDetails() {
@@ -267,10 +289,6 @@
         for (let i = 0; i < containerBlock.children.length; i++) {
           const block = containerBlock.children[i];
 
-          // console.log(`Input part ${inputPartsIndex}: ${inputParts[inputPartsIndex]}`);
-          // console.log(`${block.type}:`, block.fields);
-          // console.log('\n');
-
           if (block.type === 'command_block') {
             if (block.fields.trigger.toLowerCase() === inputParts[inputPartsIndex]) {
               // Todo: Check length of trigger with spaces and check inputPartsIndex + X for a match
@@ -362,21 +380,28 @@
       const commandName = prompt('Enter a name for the command:');
       if (commandName) {
         let savedCommands = JSON.parse(localStorage.getItem('savedCommands')) || {};
-        savedCommands[commandName] = xml;
+        savedCommands[commandName] = {
+          xml: xml,
+          blockDetails: getBlockDetails()
+        };
         localStorage.setItem('savedCommands', JSON.stringify(savedCommands));
         console.log('Command saved:', commandName);
         updateSavedCommandsDropdown();
+        isWorkspaceChanged = false;
       }
     }
 
     function loadSelectedCommand() {
-      const selectedCommand = document.getElementById('saved-commands-dropdown').value;
-      const savedCommands = JSON.parse(localStorage.getItem('savedCommands')) || {};
-      if (savedCommands[selectedCommand]) {
-        workspaceFromJson(savedCommands[selectedCommand]);
-        console.log('Loaded command:', selectedCommand);
-      } else {
-        console.log('No command found with name:', selectedCommand);
+      if (checkForUnsavedChanges()) {
+        const selectedCommand = document.getElementById('saved-commands-dropdown').value;
+        const savedCommands = JSON.parse(localStorage.getItem('savedCommands')) || {};
+        if (savedCommands[selectedCommand]) {
+          workspaceFromJson(savedCommands[selectedCommand]['xml']);
+          console.log('Loaded command:', selectedCommand);
+        } else {
+          console.log('No command found with name:', selectedCommand);
+        }
+        isWorkspaceChanged = false; // Reset the change tracker
       }
     }
 
@@ -417,7 +442,9 @@
     });
 
     document.getElementById('import-btn').addEventListener('click', () => {
-      document.getElementById('file-input').click();
+      if (checkForUnsavedChanges()) {
+        document.getElementById('file-input').click();
+      }
     });
 
     document.getElementById('file-input').addEventListener('change', (event) => {
