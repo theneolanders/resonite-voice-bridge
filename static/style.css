@@ -397,3 +397,25 @@ label {
   margin-left: 10px;
 }
 
+#commandLog {
+  max-height: 600px;
+  overflow-y: scroll;
+}
+
+.log-entry {
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+
+.log-header {
+  background-color: #CCCCCC;
+  color: black;
+  border-radius: 8px;
+  padding: 5px 10px;
+  margin-bottom: 5px;
+  display: inline-block;
+}
+
+.log-entry:not(:first-child) {
+  border-top: 2px solid #830071;
+}

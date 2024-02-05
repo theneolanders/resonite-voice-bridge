@@ -21,6 +21,8 @@ const toggleMicButton = document.getElementById('toggleMicBtn');
 let customCommmandsEnabled = false;
 const customCommandsCheckbox = document.getElementById('customCommandsCheckbox');
 
+const commandLog = document.getElementById('commandLog');
+
 let useConfidenceThreshold = false;
 let confidenceThreshold = 0;
 const confidenceThresholdWrapper = document.getElementById('confidenceThresholdWrapper');
@@ -436,6 +438,33 @@ function importWordDictionary(event) {
   }
 }
 
+function addCommandLogEntry(details) {
+  // Generate a human readable datetime string
+  const datetime = new Date();
+  const dateString = datetime.toLocaleDateString();
+  const timeString = datetime.toLocaleTimeString();
+
+  let outputString = `<div class="log-entry"><div class="log-header"><span class="output-datime">${dateString} ${timeString}</span>
+    <span style="font-weight: bold;">${details.matchedCommand}</span></div>
+    <div class="output-container" style="display: flex;">`;
+
+  if (details.output.command) {
+    outputString += `<div class="output-command">Command <span class="command-label">${details.output.command}</span></div>`;
+  }
+
+  for (let i = 0; i < details.output.params.length; i++) {
+    outputString += `<div class="output-parameter">${details.output.params[i].name} <span class="param-label ${details.output.type === 'number' ? 'param-number' : ''}">${details.output.params[i].value}</span></div>`;
+  }
+
+  outputString += "</div></div>";
+
+  const newEntry = document.createElement("div");
+  newEntry.classList.add("log-entry");
+  newEntry.innerHTML = outputString;
+
+  commandLog.prepend(newEntry);
+}
+
 document.querySelectorAll('.accordion-button').forEach(button => {
   button.addEventListener('click', () => {
     const accordionContent = button.nextElementSibling;
@@ -455,7 +484,5 @@ document.getElementById('importWordDictBtn').addEventListener('click', () => {
 });
 
 document.getElementById('wordDictFileInput').addEventListener('change', importWordDictionary);
-
-
 
 window.addEventListener("load", init, false);

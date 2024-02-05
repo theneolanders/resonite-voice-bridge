@@ -309,7 +309,6 @@ function testAllCommands(inputString) {
 
   // Iterate through each command
   for (const commandName in savedCommands) {
-    console.log('testing command: ' + commandName);
     const commandResults = testCommand(inputString, commandName);
     // console.log(commandResults);
     if (commandResults.success) {
