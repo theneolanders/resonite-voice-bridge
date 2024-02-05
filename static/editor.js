@@ -106,7 +106,7 @@ Blockly.Blocks['multi_text_text_block'] = {
   init: function () {
     this.appendDummyInput()
       .appendField("Option")
-      .appendField(new Blockly.FieldTextInput("OR Text option"), "OR_TEXT");
+      .appendField(new Blockly.FieldTextInput("OR Text Option"), "OR_TEXT");
     this.setPreviousStatement(true, ['multi_text_block', 'multi_text_text_block']);
     this.setNextStatement(true, ['multi_text_text_block']);
     this.setColour('7a1f4d');
@@ -133,7 +133,7 @@ Blockly.Blocks['multi_trigger_command_text_block'] = {
   init: function () {
     this.appendDummyInput()
       .appendField("Trigger")
-      .appendField(new Blockly.FieldTextInput("Trigger Text option"), "TRIGGER_TEXT");
+      .appendField(new Blockly.FieldTextInput("Trigger Text Option"), "TRIGGER_TEXT");
     this.setPreviousStatement(true, ['multi_trigger_command_block', 'multi_trigger_command_text_block']);
     this.setNextStatement(true, ['multi_trigger_command_text_block']);
     this.setColour('#452b67');
@@ -307,10 +307,8 @@ function testAllCommands(inputString) {
 
   savedCommands = JSON.parse(savedCommands);
 
-  // Iterate through each command
   for (const commandName in savedCommands) {
     const commandResults = testCommand(inputString, commandName);
-    // console.log(commandResults);
     if (commandResults.success) {
       results.success = true;
       results.matchedCommand = commandName;
@@ -356,6 +354,26 @@ function testCommand(inputString, commandName) {
   const commandOutput = parseInputAgainstCommand(inputString, command['blockDetails']);
 
   if (!commandOutput.error) {
+    if (!commandOutput.command && !commandOutput.params.length) {
+      results.output = {
+        error: {
+          msg: 'Command not found'
+        }
+      }
+      return results;
+    }
+
+    for (let i = 0; i < commandOutput.params.length; i++) {
+      if (!commandOutput.params[i].value.length) {
+        results.output = {
+          error: {
+            msg: 'Missing parameter value'
+          }
+        }
+        return results;
+      }
+    }
+
     results.success = true;
     results.output = commandOutput;
   }
@@ -519,8 +537,6 @@ document.getElementById('validate-btn').addEventListener('click', () => {
 
   output = testEditorContents(inputString);
 
-  console.log(output);
-
   if (output.error) {
     outputString = `
       <div class="output-error">
@@ -595,7 +611,6 @@ function loadSelectedCommand() {
     const savedCommands = JSON.parse(localStorage.getItem('savedCommands')) || {};
     if (savedCommands[selectedCommand]) {
       workspaceFromJson(savedCommands[selectedCommand]['xml']);
-      console.log('Loaded command:', selectedCommand);
     } else {
       console.log('No command found with name:', selectedCommand);
     }
