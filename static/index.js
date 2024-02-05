@@ -18,6 +18,9 @@ const debugModeCheckbox = document.getElementById('debugModeCheckbox');
 let micEnabled = false;
 const toggleMicButton = document.getElementById('toggleMicBtn');
 
+let customCommmandsEnabled = false;
+const customCommandsCheckbox = document.getElementById('customCommandsCheckbox');
+
 let useConfidenceThreshold = false;
 let confidenceThreshold = 0;
 const confidenceThresholdWrapper = document.getElementById('confidenceThresholdWrapper');
@@ -69,6 +72,13 @@ function init() {
     saveSettings();
   });
 
+  customCommandsCheckbox.addEventListener('change', () => {
+    customCommmandsEnabled = customCommandsCheckbox.checked;
+    if (customCommmandsEnabled) websocket.send('[customCommandsEnabled]');
+    else websocket.send('[customCommandsDisabled]');
+    saveSettings();
+  })
+
   removePunctuationCheckbox.addEventListener('change', () => {
     removePunctuation = removePunctuationCheckbox.checked;
     if (removePunctuation) websocket.send('[removePunctuationEnabled]');
@@ -112,6 +122,9 @@ function loadSetings() {
   debugModeEnabled = localStorage.getItem('debugModeEnabled') === 'true';
   debugModeCheckbox.checked = debugModeEnabled;
 
+  customCommmandsEnabled = localStorage.getItem('customCommandsEnabled') === 'true';
+  customCommandsCheckbox.checked = customCommmandsEnabled;
+
   useConfidenceThreshold = localStorage.getItem('useConfidenceThreshold') === 'true';
   confidenceThreshold = parseFloat(localStorage.getItem('confidenceThreshold'));
   confidenceThresholdCheckbox.checked = useConfidenceThreshold;
@@ -134,6 +147,7 @@ function loadSetings() {
 function saveSettings() {
   localStorage.setItem('wordReplacementEnabled', wordReplacementEnabled);
   localStorage.setItem('debugModeEnabled', debugModeEnabled);
+  localStorage.setItem('customCommandsEnabled', customCommmandsEnabled);
   localStorage.setItem('useConfidenceThreshold', useConfidenceThreshold);
   localStorage.setItem('confidenceThreshold', confidenceThreshold);
   localStorage.setItem('wordDictionary', JSON.stringify(wordDictionary));
