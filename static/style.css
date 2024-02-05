@@ -121,8 +121,12 @@ input[type='number'] {
   outline: none;
 }
 
+#outputWrapper {
+  margin-top: 1em;
+}
+
 #confidenceValue {
-  margin: 10px 0;
+  margin: 1em 0;
 }
 
 #confidenceThresholdInput:hover {
@@ -217,36 +221,26 @@ label {
 
 .accordion-button {
   background-color: #f4f4f4;
-  /* Lighter background for a less button-like look */
   color: #830071;
-  /* Using your primary color for text */
   cursor: pointer;
   padding: 12px 18px;
   border-bottom: 2px solid #830071;
-  /* Adding a bottom border for a header-like separation */
   text-align: left;
   outline: none;
   font-size: 18px;
-  /* Slightly larger font size for a header feel */
   font-weight: bold;
-  /* Making the text bold */
   transition: 0.4s;
   border-radius: 0;
-  /* Removing border radius for a more header-like appearance */
   margin-bottom: 0;
-  /* Eliminating space between header and content */
 }
 
 .accordion-button:hover {
-  background-color: #e8e8e8;
-  /* Slightly darker background on hover for interactivity */
+  background-color: #C8C8C8;
 }
 
 .accordion-button.active {
   background-color: #e0e0e0;
-  /* Active state to indicate expanded section */
   border-bottom: 2px solid #6e005c;
-  /* Darker border for active state */
 }
 
 .accordion-content {
@@ -255,14 +249,11 @@ label {
   background-color: white;
   border: 1px solid #ddd;
   border-top: none;
-  /* Removing the top border to blend with the header */
   border-radius: 0;
-  /* Aligning with the header style */
   margin-bottom: 20px;
-  /* Consistent spacing */
+
 }
 
-/* Additional styling for content inside accordion for better readability */
 .accordion-content p,
 .accordion-content label,
 .accordion-content input,
@@ -272,41 +263,106 @@ label {
 
 .container {
   width: 80%;
-  /* Adjust the width as needed */
   max-width: 1200px;
-  /* Maximum width of the container */
   margin: auto;
-  /* Center the container */
   padding: 20px;
-  /* Padding around the content */
   background-color: #fff;
-  /* Background color of the container */
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  /* Optional shadow for a subtle depth effect */
 }
 
 .accordion-button,
 .accordion-content {
   width: 100%;
-  /* Make accordions take full width */
   box-sizing: border-box;
-  /* Include padding and border in the width */
 }
 
 .accordion-button::after {
   content: '\002B';
-  /* Unicode plus sign */
   color: #830071;
-  /* Same as your primary color */
   float: right;
-  /* Position it to the right */
   margin-left: 5px;
   transition: transform 0.4s;
 }
 
 .accordion-button.active::after {
   content: '\2212';
-  /* Unicode minus sign */
   transform: rotate(360deg);
-  /* Rotate effect when active */
+}
+
+#saved-commands-dropdown {
+  padding: 5px 12px;
+  margin-top: 3px;
+  margin-right: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: #fff;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+#unsaved {
+  color: red;
+  font-weight: bold;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .blocklySvg {
+      border-radius: 0;
+  }
+
+  button, input[type="text"], select {
+      font-size: 14px;
+  }
+}
+
+#clear-btn {
+  background-color: #b4794e;
+}
+
+#save-btn {
+  background-color: #53b253;
+}
+
+#export-btn {
+  background-color: #ac9769;
+  float: right;
+}
+
+#import-btn {
+  background-color: #8c77b3;
+  float: right;
+}
+
+#load-selected-btn {
+  background-color: #4f9a67;
+  float: right;
+}
+
+#delete-btn {
+  background-color: #962c28;
+  float: right;
+}
+
+#validate-btn {
+  background-color: #333333;
+  float: right;
+}
+
+#validate-input {
+  flex-grow: 1;
+  margin-right: 8px;
+  padding: 8px 10px;
+  font-size: 16px;
+  margin-top: 5px;
+}
+
+.blockly-btn {
+  padding: 5px 15px;
+}
+
+#editingBanner {
+  text-align: center;
+  font-size: 21px;
+  font-weight: bold;
 }

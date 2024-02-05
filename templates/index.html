@@ -47,6 +47,9 @@
         <div id="outputWrapper" class="background">
             <h4 style="margin-top:0; margin-bottom: 0.5em">Transcript:</h4>
             <p id="sttOutput"></p>
+            <p id="confidenceValue" style="display: none;"><strong>Confidence:</strong> <span
+                    id="confidenceScore"></span>
+            </p>
         </div>
 
         <div id="confidenceThresholdWrapper" class="background" style="display: none;">
@@ -57,65 +60,6 @@
                     <input type="number" id="confidenceThresholdInput" style="margin-left: 5px;" min="0" max="1"
                         step="0.01" placeholder="0.00" value="0.0">
                 </label>
-            </div>
-            <p id="confidenceValue" style="display: none;">Confidence: <span
-                    id="confidenceScore"></span>
-            </p>
-        </div>
-
-        <div class="accordion">
-            <button class="accordion-button">Settings</button>
-            <div id="settingsContent" class="accordion-content">
-
-                <div id="settingsWrapper">
-                    <label for="debugModeCheckbox" class="checkbox-label">
-                        <input type="checkbox" id="debugModeCheckbox" class="checkbox-input">
-                        Enable Debug Mode
-                    </label>
-
-                    <label for="outputStreamingCheckbox" class="checkbox-label">
-                        <input type="checkbox" id="outputStreamingCheckbox" class="checkbox-input" checked>
-                        Stream Output
-                    </label>
-
-                    <label for="removePunctuationCheckbox" class="checkbox-label">
-                        <input type="checkbox" id="removePunctuationCheckbox" class="checkbox-input">
-                        Remove Punctuation
-                    </label>
-
-                    <label for="confidenceThresholdCheckbox" class="checkbox-label">
-                        <input type="checkbox" id="confidenceThresholdCheckbox" class="checkbox-input">
-                        Enable Confidence Threshold
-                    </label>
-
-                    <label for="wordReplacementCheckbox" class="checkbox-label">
-                        <input type="checkbox" id="wordReplacementCheckbox" class="checkbox-input">
-                        Enable Word Replacement
-                    </label>
-                </div>
-
-            </div>
-        </div>
-
-        <div class="accordion">
-            <button class="accordion-button">Word Replacement</button>
-            <div id="wordReplacementContent" class="accordion-content">
-                <div id="wordReplacementContainer">
-                    <div id="wordPairList"></div>
-                    <div id="addWordPairForm">
-                        <input type="text" id="originalWord" placeholder="Original Word">
-                        <input type="text" id="replacementWord" placeholder="Replacement Word">
-                        <button id="addWordPairBtn" class="btn">Add Word Pair</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="accordion">
-            <button class="accordion-button">Command Editor</button>
-            <div id="commandEditorContent" class="accordion-content">
-
-
             </div>
         </div>
 
@@ -312,8 +256,98 @@
 
             </div>
         </div>
-    </div>
 
+        <div class="accordion">
+            <button class="accordion-button active">Command Editor</button>
+            <div id="commandEditorContent" class="accordion-content" style="display: block;">
+                <div>
+                    <button class="btn blockly-btn" id="clear-btn">Clear Workspace</button>
+                    <button class="btn blockly-btn" id="export-btn">Export Command to File</button>
+                    <button class="btn blockly-btn" id="import-btn">Import Command from File</button>
+                </div>
+                <div>
+                    <button class="btn blockly-btn" id="save-btn" disabled>Save Command</button>
+                    <button class="btn blockly-btn" id="delete-btn">Delete Selected</button>
+                    <button class="btn blockly-btn" id="load-selected-btn">Load Selected</button>
+                    <select id="saved-commands-dropdown" style="float: right;"></select>
+                </div>
+                <input type="file" id="file-input" style="display: none;" accept=".json">
+                <div id="editingBanner">Editing <span id="command-name">New Command</span> <span id="unsaved"
+                        style="display: none;">(Modified)</span>
+                </div>
+                <div id="blocklyDiv" style="height: 800px; width: 100%;"></div>
+
+                <xml id="toolbox" style="display: none">
+                    <block type="comment_block"></block>
+                    <block type="command_block"></block>
+                    <block type="no_trigger_command_block"></block>
+                    <block type="multi_trigger_command_block"></block>
+                    <block type="multi_trigger_command_text_block"></block>
+                    <block type="parameter_block"></block>
+                    <block type="text_block"></block>
+                    <block type="multi_text_block"></block>
+                    <block type="multi_text_text_block"></block>
+                </xml>
+
+                <div style="display: flex; margin-top: 10px;">
+                    <input type="text" id="validate-input" placeholder="Enter text here to test your command">
+                    <button class="btn" id="validate-btn">Test Input</button>
+                </div>
+
+                <p id="output"></p>
+            </div>
+        </div>
+
+        <div class="accordion">
+            <button class="accordion-button">Word Replacement</button>
+            <div id="wordReplacementContent" class="accordion-content">
+                <div id="wordReplacementContainer">
+                    <div id="wordPairList"></div>
+                    <div id="addWordPairForm">
+                        <input type="text" id="originalWord" placeholder="Original Word">
+                        <input type="text" id="replacementWord" placeholder="Replacement Word">
+                        <button id="addWordPairBtn" class="btn">Add Word Pair</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion">
+            <button class="accordion-button">Settings</button>
+            <div id="settingsContent" class="accordion-content">
+
+                <div id="settingsWrapper">
+                    <label for="debugModeCheckbox" class="checkbox-label">
+                        <input type="checkbox" id="debugModeCheckbox" class="checkbox-input">
+                        Enable Debug Mode
+                    </label>
+
+                    <label for="outputStreamingCheckbox" class="checkbox-label">
+                        <input type="checkbox" id="outputStreamingCheckbox" class="checkbox-input" checked>
+                        Stream Output
+                    </label>
+
+                    <label for="removePunctuationCheckbox" class="checkbox-label">
+                        <input type="checkbox" id="removePunctuationCheckbox" class="checkbox-input">
+                        Remove Punctuation
+                    </label>
+
+                    <label for="confidenceThresholdCheckbox" class="checkbox-label">
+                        <input type="checkbox" id="confidenceThresholdCheckbox" class="checkbox-input">
+                        Enable Confidence Threshold
+                    </label>
+
+                    <label for="wordReplacementCheckbox" class="checkbox-label">
+                        <input type="checkbox" id="wordReplacementCheckbox" class="checkbox-input">
+                        Enable Word Replacement
+                    </label>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <script src="https://unpkg.com/blockly/blockly.min.js"></script>
+    <script type="text/javascript" src="/static/editor.js"></script>
     <script type="text/javascript" src="/static/index.js"></script>
 
     <a href="https://github.com/theneolanders/resonite-voice-bridge/" class="github-corner"
