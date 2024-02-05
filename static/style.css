@@ -324,13 +324,15 @@ label {
   background-color: #53b253;
 }
 
-#export-btn {
+#export-btn, #exportWordDictBtn {
   background-color: #ac9769;
-  float: right;
 }
 
-#import-btn {
+#import-btn, #importWordDictBtn {
   background-color: #8c77b3;
+}
+
+#export-btn, #import-btn {
   float: right;
 }
 
@@ -355,10 +357,6 @@ label {
   padding: 8px 10px;
   font-size: 16px;
   margin-top: 5px;
-}
-
-.blockly-btn {
-  padding: 5px 15px;
 }
 
 #editingBanner {

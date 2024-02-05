@@ -27,7 +27,6 @@ const confidenceThresholdInput = document.getElementById('confidenceThresholdInp
 
 let wordReplacementEnabled = false;
 const wordReplacementCheckbox = document.getElementById('wordReplacementCheckbox');
-const wordReplacementContainer = document.getElementById('wordReplacementContainer');
 const addWordPairBtn = document.getElementById('addWordPairBtn');
 
 let removePunctuation = false;
@@ -35,17 +34,6 @@ const removePunctuationCheckbox = document.getElementById('removePunctuationChec
 
 let outputStreaming = true;
 const outputStreamingCheckbox = document.getElementById('outputStreamingCheckbox');
-
-const defaultWordDictionary = {
-  'f***': 'fuck',
-  'f****': 'fucks',
-  'b******': 'bitches',
-  's***': 'shit',
-  's****': 'shits',
-  'cont': 'cunt',
-  'b****': 'bitch',
-  'a******': 'asshole',
-};
 
 let wordDictionary = {};
 
@@ -118,7 +106,7 @@ function init() {
 function loadSetings() {
   wordReplacementEnabled = localStorage.getItem('wordReplacementEnabled') === 'true';
   wordReplacementCheckbox.checked = wordReplacementEnabled;
-  wordDictionary = JSON.parse(localStorage.getItem('wordDictionary') || JSON.stringify(defaultWordDictionary));
+  wordDictionary = JSON.parse(localStorage.getItem('wordDictionary') || {});
   renderWordPairs();
 
   debugModeEnabled = localStorage.getItem('debugModeEnabled') === 'true';
@@ -229,7 +217,6 @@ function renderWordPairs() {
     `;
     wordPairList.appendChild(pairDiv);
   });
-  wordReplacementContainer.style.display = wordReplacementEnabled ? "block" : "none";
 }
 
 function addWordPair() {
@@ -255,11 +242,6 @@ function editWordPair(key) {
     wordDictionary[key] = newReplacement;
     renderWordPairs();
   }
-  saveSettings();
-}
-
-function setWordReplacement() {
-  document.getElementById("wordReplacementContainer").style.display = wordReplacementEnabled ? "block" : "none";
   saveSettings();
 }
 
@@ -344,13 +326,13 @@ function onMessage(event) {
     websocket.send('[changedConfidence=' + confidenceThreshold + ']');
   } else if (event.data === 'replacementEnable') {
     wordReplacementEnabled = true;
-    setWordReplacement();
+    saveSettings();
   } else if (event.data === 'replacementDisable') {
     wordReplacementEnabled = false;
-    setWordReplacement();
+    saveSettings();
   } else if (event.data === 'replacementToggle') {
     wordReplacementEnabled = !wordReplacementEnabled;
-    setWordReplacement();
+    saveSettings();
   } else if (event.data === 'removePunctuationEnable') {
     removePunctuation = true;
     websocket.send('[removePunctuationEnabled]');
@@ -411,6 +393,35 @@ function onClose(event) {
   document.getElementById("websocketStatus").innerHTML = '<span style="color: red;">Disconnected from backend</span>';
 }
 
+function exportWordDictionary() {
+  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(wordDictionary));
+  const downloadAnchorNode = document.createElement('a');
+  downloadAnchorNode.setAttribute("href", dataStr);
+  downloadAnchorNode.setAttribute("download", "rvb-word-replacement-dictionary.json");
+  document.body.appendChild(downloadAnchorNode);
+  downloadAnchorNode.click();
+  downloadAnchorNode.remove();
+}
+
+function importWordDictionary(event) {
+  const fileReader = new FileReader();
+  fileReader.onload = function(event) {
+    try {
+      const importedDict = JSON.parse(event.target.result);
+      wordDictionary = importedDict;
+      renderWordPairs();
+      saveSettings();
+    } catch (error) {
+      console.error('Error importing word dictionary:', error);
+      alert('Invalid file format');
+    }
+  };
+  const file = event.target.files[0];
+  if (file) {
+    fileReader.readAsText(file);
+  }
+}
+
 document.querySelectorAll('.accordion-button').forEach(button => {
   button.addEventListener('click', () => {
     const accordionContent = button.nextElementSibling;
@@ -422,6 +433,15 @@ document.querySelectorAll('.accordion-button').forEach(button => {
     }
   });
 });
+
+document.getElementById('exportWordDictBtn').addEventListener('click', exportWordDictionary);
+
+document.getElementById('importWordDictBtn').addEventListener('click', () => {
+  document.getElementById('wordDictFileInput').click(); // Trigger file input
+});
+
+document.getElementById('wordDictFileInput').addEventListener('change', importWordDictionary);
+
 
 
 window.addEventListener("load", init, false);

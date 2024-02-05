@@ -261,18 +261,18 @@
             <button class="accordion-button active">Command Editor</button>
             <div id="commandEditorContent" class="accordion-content" style="display: block;">
                 <div>
-                    <button class="btn blockly-btn" id="clear-btn">Clear Workspace</button>
-                    <button class="btn blockly-btn" id="export-btn">Export Command to File</button>
-                    <button class="btn blockly-btn" id="import-btn">Import Command from File</button>
+                    <button class="btn" id="clear-btn">Clear Workspace</button>
+                    <button class="btn" id="export-btn">Export Command to File</button>
+                    <button class="btn" id="import-btn">Import Command from File</button>
                 </div>
                 <div>
-                    <button class="btn blockly-btn" id="save-btn" disabled>Save Command</button>
-                    <button class="btn blockly-btn" id="delete-btn">Delete Selected</button>
-                    <button class="btn blockly-btn" id="load-selected-btn">Load Selected</button>
+                    <button class="btn" id="save-btn" disabled>Save Command</button>
+                    <button class="btn" id="delete-btn">Delete Selected</button>
+                    <button class="btn" id="load-selected-btn">Load Selected</button>
                     <select id="saved-commands-dropdown" style="float: right;"></select>
                 </div>
                 <input type="file" id="file-input" style="display: none;" accept=".json">
-                <div id="editingBanner">Editing <span id="command-name">New Command</span> <span id="unsaved"
+                <div id="editingBanner">Editing "<span id="command-name">New Command</span>" <span id="unsaved"
                         style="display: none;">(Modified)</span>
                 </div>
                 <div id="blocklyDiv" style="height: 800px; width: 100%;"></div>
@@ -302,12 +302,18 @@
             <button class="accordion-button">Word Replacement</button>
             <div id="wordReplacementContent" class="accordion-content">
                 <div id="wordReplacementContainer">
+                    <div>
+                        <button class="btn" id="exportWordDictBtn">Export Replacements to File</button>
+                        <button class="btn" id="importWordDictBtn">Import Replacements from File</button>
+                    </div>
                     <div id="wordPairList"></div>
                     <div id="addWordPairForm">
                         <input type="text" id="originalWord" placeholder="Original Word">
                         <input type="text" id="replacementWord" placeholder="Replacement Word">
                         <button id="addWordPairBtn" class="btn">Add Word Pair</button>
                     </div>
+                    <input type="file" id="wordDictFileInput" style="display:none;" accept=".json">
+
                 </div>
             </div>
         </div>
