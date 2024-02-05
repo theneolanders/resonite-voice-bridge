@@ -9,27 +9,32 @@ This application enables the use of Speech-To-Text in Resonite, by bridging Goog
 
 This enables the creation of tools like real-time captioning, or voice controlled objects.
 
+Additionally it includes a simple visual command editor (Google Blockly) for easily turning natural language into commands with parameters. This enables the ease of development for more complex use cases like making a voice assistant.
+
+## Features
+
+* Real-time speech-to-text transcription (Google Chrome STT API)
+* Websocket server for Resonite. Includes full control and status of every feature using websocket commands and events
+* Visual command editor to create voice complex commands, reducing the need for Protoflux string parsing
+* Word replacement, punctuation removal, and more.
+
+![Screenshot 2024-02-05 at 13-36-03 Resonite Voice Bridge](https://github.com/theneolanders/resonite-voice-bridge/assets/3112763/d70c5924-fa52-4864-8ae5-f32cc14a7a5e)
+
 ## Download
 
 The latest version can be found on the [releases page](https://github.com/theneolanders/resonite-voice-bridge/releases).
 
 ## Running the server
 
-Launch the server executable, then open http://localhost:5000/ in Google Chrome. Grant the microphone permission and test the interface by speaking. You should see page saying the microhone is listening, the websocket is connected, and your spoken text appearing.
+_**This application requires Google Chrome, as it uses the Web Speech API. Please note that the speech recognition API in use is provided by Google.**_
+
+_I plan to add Whisper STT running in the browser via WebGPU for completely local offline inference, but this is waiting on the release of Transformers.js version 3._
+
+Launch the server executable, and make sure to allow the application through the Windows Firewall. Then open http://localhost:5000/ in Google Chrome. Grant the microphone permission and test the interface by speaking. You should see page saying the microhone is listening, the websocket is connected, and your spoken text appearing.
 
 In Resonite, use the Websocket Connect node to create a websocket connection to ws://localhost:6789. Any speech the page detects will be sent to this connection.
 
 Use the Websocket Message Received node to receive real-time updates from the speech recognition.
-
-# Documentation
-
-## Usage
-
-### TODO: Update this after 2.0 release
-
-_**This page requires Google Chrome, as it uses the Web Speech API. Please note that the speech recognition API in use is provided by Google.**_
-
-This page will broadcast any detected speech using a websocket at the following url: **ws://localhost:6789**
 
 ## How it works
 
@@ -41,7 +46,7 @@ The websocket server is configured to echo any message it receives back to all o
 
 ## Troubleshooting
 
-The text from the speech recognition API is streamed in real-time, rather than waiting for a pause and then sending the entire captured string.
+Make sure you've granted the appplication internet access via the Windows Firewall. Additionally make sure you've granted the microphone permission in Chrome.
 
 If you're not getting speech transcription in the webpage, make sure Chrome is listening to the correct input device by clicking the microphone icon in the address bar:
 
@@ -63,5 +68,4 @@ This project is in no way affiliated with by Resonite or any member of its staff
 
 ### TODO:
 
-* Update readme screenshots
 * Implement custom timeouts instead of relying on the end event
