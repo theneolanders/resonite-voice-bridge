@@ -158,7 +158,9 @@ function initBlockly() {
       event.type === Blockly.Events.BLOCK_CHANGE) {
       isWorkspaceChanged = true;
       const unsaved = document.getElementById('unsaved');
+      const unsavedMessage = document.getElementById('unsavedMessage');
       unsaved.style.display = 'inline';
+      unsavedMessage.style.display = 'block';
       document.getElementById('save-btn').disabled = false;
     }
   });
@@ -549,7 +551,7 @@ document.getElementById('validate-btn').addEventListener('click', () => {
   } else {
     if (output.command || output.params.length) {
       if (output.command) {
-        outputString += `<div class="output-command">Command <span class="command-label">${output.command}</span></div>`;
+        outputString += `<div style="display: flex;"><div class="output-command">Command <span class="command-label">${output.command}</span></div>`;
       }
 
       for (let i = 0; i < output.params.length; i++) {
@@ -558,6 +560,7 @@ document.getElementById('validate-btn').addEventListener('click', () => {
     } else {
       outputString = '<div style="font-weight: bold">No command or parameters were found in the input text.</div>';
     }
+    outputString += '</div><div style="margin-top: 10px;"><span style="font-weight: bold">Websocket String:</span> ' + formatWebsocketCommand(output) + '</div>';
   }
 
   document.getElementById('validationOutput').innerHTML = outputString;
@@ -579,7 +582,9 @@ function resetModified() {
   setTimeout(() => {
     isWorkspaceChanged = false;
     const unsaved = document.getElementById('unsaved');
+    const unsavedMessage = document.getElementById('unsavedMessage');
     unsaved.style.display = 'none';
+    unsavedMessage.style.display = 'none';
     document.getElementById('save-btn').disabled = true;
   }, 100);
 }
@@ -600,7 +605,9 @@ function saveCommand() {
     updateSavedCommandsDropdown();
     isWorkspaceChanged = false;
     const unsaved = document.getElementById('unsaved');
+    const unsavedMessage = document.getElementById('unsavedMessage');
     unsaved.style.display = 'none';
+    unsavedMessage.style.display = 'none';
     document.getElementById('save-btn').disabled = true;
   }
 }
@@ -680,7 +687,9 @@ document.getElementById('file-input').addEventListener('change', (event) => {
         commandName.innerHTML = saveName;
         isWorkspaceChanged = true;
         const unsaved = document.getElementById('unsaved');
+        const unsavedMessage = document.getElementById('unsavedMessage');
         unsaved.style.display = 'inline';
+        unsavedMessage.style.display = 'block';
         document.getElementById('save-btn').disabled = false;
         workspaceFromJson(json['xml']);
         console.log('Imported workspace from file');

@@ -419,3 +419,9 @@ label {
 .log-entry:not(:first-child) {
   border-top: 2px solid #830071;
 }
+
+#unsavedMessage {
+  text-align: center;
+  font-style: italic;
+
+}
