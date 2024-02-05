@@ -240,6 +240,15 @@
                 <p>The value of each setting is persisted across reloads using localStorage.</p>
 
                 <h3>Commands</h3>
+                <h4>Custom Commands</h4>
+                <p>Custom commands allow you to create custom command triggers that fire based on your voice input. See the Custom Commands Documentation below for more information.</p>
+                <p>The following commands can be sent to change the state of the custom commands feature.</p>
+                <ul>
+                    <li><strong>customCommandsToggle</strong>: Toggles the custom commands feature on and off</li>
+                    <li><strong>customCommandsEnable</strong>: Enables the custom commands feature</li>
+                    <li><strong>customCommandsDisable</strong>: Disables the custom commands feature</li>
+                </ul>
+
                 <h4>Microphone/Recognition</h4>
                 <p>It is advised to disable the microphone access when not actively in use, as anything you say while
                     the
@@ -319,8 +328,14 @@
                         was
                         already enabled.</i></p>
                 <h3>Events</h3>
-                <p>The server will send the following event messages when the the microphone state or an option changes:
+                <h4>Custom Commands</h4>
+                <ul>
+                    <li><strong>[customCommandsEnabled]</strong>: Custom commands have been enabled</li>
+                    <li><strong>[customCommandsDisabled]</strong>: Custom commands have been disabled</li>
+                </ul>
+
                 <h4>Microphone/Recognition</h4>
+                <p>The server will send the following event messages when the the microphone state or an option changes:</p>
                 <ul>
                     <li><strong>[enabled]</strong>: The microphone has been enabled</li>
                     <li><strong>[disabled]</strong>: The microphone has been disabled</li>
