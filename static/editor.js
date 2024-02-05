@@ -291,8 +291,85 @@ function getBlockDetails() {
   return organizedBlocks;
 }
 
-function parseInputAgainstCommand(inputString) {
+function testAllCommands(inputString) {
+  let savedCommands = localStorage.getItem('savedCommands');
+  let results = {
+    success: false,
+    output: {
+      error: {
+        msg: 'No commands found'
+      }
+    }
+  };
+  if (!savedCommands) {
+    return results;
+  }
+
+  savedCommands = JSON.parse(savedCommands);
+
+  // Iterate through each command
+  for (const commandName in savedCommands) {
+    console.log('testing command: ' + commandName);
+    const commandResults = testCommand(inputString, commandName);
+    // console.log(commandResults);
+    if (commandResults.success) {
+      results.success = true;
+      results.matchedCommand = commandName;
+      results.output = commandResults.output;
+      return results;
+    }
+  }
+
+  return results
+}
+
+function testCommand(inputString, commandName) {
+  const results = {
+    success: false,
+    output: {
+      error: {
+        msg: 'Failed to execute command'
+      }
+    }
+  };
+
+  let savedCommands = localStorage.getItem('savedCommands');
+  if (!savedCommands) {
+    results.output = {
+      error: {
+        msg: 'Command not found'
+      }
+    }
+    return results;
+  }
+
+  savedCommands = JSON.parse(savedCommands);
+  const command = savedCommands[commandName];
+  if (!command) {
+    results.output = {
+      error: {
+        msg: 'Missing block details'
+      }
+    }
+    return results;
+  }
+
+  const commandOutput = parseInputAgainstCommand(inputString, command['blockDetails']);
+
+  if (!commandOutput.error) {
+    results.success = true;
+    results.output = commandOutput;
+  }
+
+  return results;
+}
+
+function testEditorContents(inputString) {
   const blocks = getBlockDetails();
+  return parseInputAgainstCommand(inputString, blocks);
+}
+
+function parseInputAgainstCommand(inputString, blocks) {
   let inputParts = inputString.toLowerCase().split(' ');
 
   const output = {
@@ -305,7 +382,6 @@ function parseInputAgainstCommand(inputString) {
     const containerBlock = blocks[blockId];
 
     const wakeWordIndex = inputParts.indexOf(containerBlock.fields.wake_word.toLowerCase());
-    console.log('Wake word index:', wakeWordIndex);
     if (wakeWordIndex === -1 && !containerBlock.fields.wake_word_optional) {
       if (!containerBlock.fields.wake_word_optional) {
         output['error'] = {
@@ -313,7 +389,6 @@ function parseInputAgainstCommand(inputString) {
           input: inputParts[0],
           valid: containerBlock.fields.wake_word
         }
-        console.log('Invalid wake word');
         break;
       }
     } else {
@@ -443,7 +518,7 @@ document.getElementById('validate-btn').addEventListener('click', () => {
 
   const inputString = document.getElementById('validate-input').value;
 
-  output = parseInputAgainstCommand(inputString);
+  output = testEditorContents(inputString);
 
   console.log(output);
 
@@ -457,12 +532,16 @@ document.getElementById('validate-btn').addEventListener('click', () => {
       </div>
     `;
   } else {
-    if (output.command) {
-      outputString += `<div class="output-command">Command <span class="command-label">${output.command}</span></div>`;
-    }
+    if (output.command || output.params.length) {
+      if (output.command) {
+        outputString += `<div class="output-command">Command <span class="command-label">${output.command}</span></div>`;
+      }
 
-    for (let i = 0; i < output.params.length; i++) {
-      outputString += `<div class="output-parameter">${output.params[i].name} <span class="param-label ${output.type === 'number' ? 'param-number' : ''}">${output.params[i].value}</span></div>`;
+      for (let i = 0; i < output.params.length; i++) {
+        outputString += `<div class="output-parameter">${output.params[i].name} <span class="param-label ${output.type === 'number' ? 'param-number' : ''}">${output.params[i].value}</span></div>`;
+      }
+    } else {
+      outputString = '<div style="font-weight: bold">No command or parameters were found in the input text.</div>';
     }
   }
 
