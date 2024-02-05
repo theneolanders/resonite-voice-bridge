@@ -373,6 +373,19 @@ function onMessage(event) {
     outputStreaming = !outputStreaming;
     if (outputStreaming) websocket.send('[outputStreamingEnabled]');
     else websocket.send('[outputStreamingDisabled]');
+  } else if (event.data === 'customCommandsEnable') {
+    customCommandsEnabled = true;
+    websocket.send('[customCommandsEnabled]');
+    saveSettings();
+  } else if (event.data === 'customCommandsDisable') {
+    customCommandsEnabled = false;
+    websocket.send('[customCommandsDisabled]');
+    saveSettings();
+  } else if (event.data === 'customCommandsToggle') {
+    customCommandsEnabled = !customCommandsEnabled;
+    if (customCommandsEnabled) websocket.send('[customCommandsEnabled]');
+    else websocket.send('[customCommandsDisabled]');
+    saveSettings();
   }
 }
 
