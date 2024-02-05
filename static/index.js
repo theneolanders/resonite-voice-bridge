@@ -283,6 +283,8 @@ function onSpeechRecognized(e) {
     document.getElementById("sttOutput").innerHTML = transcript;
     if (outputStreaming) websocket.send(transcript);
 
+    if (customCommmandsEnabled) testTranscriptCommands();
+
     if (debugModeEnabled) websocket.send('[debugConfidence=' + recognized.confidence.toFixed(2) + ']');
   }
 }
@@ -456,10 +458,11 @@ function importWordDictionary(event) {
 }
 
 function addCommandLogEntry(details) {
-  // Generate a human readable datetime string
   const datetime = new Date();
   const dateString = datetime.toLocaleDateString();
   const timeString = datetime.toLocaleTimeString();
+
+  console.log(details);
 
   let outputString = `<div class="log-entry"><div class="log-header"><span class="output-datime">${dateString} ${timeString}</span>
     <span style="font-weight: bold;">${details.matchedCommand}</span></div>
@@ -480,6 +483,27 @@ function addCommandLogEntry(details) {
   newEntry.innerHTML = outputString;
 
   commandLog.prepend(newEntry);
+}
+
+function formatWebsocketCommand(details) {
+  let outputString = '';
+  if (details.command) {
+    outputString += `${details.command}|`;
+  }
+  for (let i = 0; i < details.params.length; i++) {
+    if (i > 0) outputString += '>'
+    outputString += `${details.params[i].name}=${details.params[i].value}`;
+  }
+  return outputString;
+}
+
+function testTranscriptCommands() {
+  const preparedTranscript = stripPunctuation(transcript);
+  const results = testAllCommands(preparedTranscript);
+  if (results.success) {
+    addCommandLogEntry(results);
+    websocket.send(formatWebsocketCommand(results.output));
+  }
 }
 
 document.querySelectorAll('.accordion-button').forEach(button => {
