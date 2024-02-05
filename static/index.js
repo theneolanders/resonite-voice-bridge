@@ -342,12 +342,16 @@ function onMessage(event) {
     websocket.send('[changedConfidence=' + confidenceThreshold + ']');
   } else if (event.data === 'replacementEnable') {
     wordReplacementEnabled = true;
+    websocket.send('[replacementEnabled]');
     saveSettings();
   } else if (event.data === 'replacementDisable') {
     wordReplacementEnabled = false;
+    websocket.send('[replacementDisabled]');
     saveSettings();
   } else if (event.data === 'replacementToggle') {
     wordReplacementEnabled = !wordReplacementEnabled;
+    if (wordReplacementEnabled) websocket.send('[replacementEnabled]');
+    else websocket.send('[replacementDisabled]');
     saveSettings();
   } else if (event.data === 'removePunctuationEnable') {
     removePunctuation = true;
