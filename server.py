@@ -24,10 +24,6 @@ async def echo(websocket):
 def index():
     return render_template('index.html')
 
-@app.route('/edit')
-def editor():
-    return render_template('blockly.html')
-
 if __name__ == '__main__':
     flask_thread = threading.Thread(target=lambda: app.run(port=5000, use_reloader=False))
     flask_thread.start()
