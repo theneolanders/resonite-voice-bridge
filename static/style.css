@@ -354,9 +354,12 @@ label {
 #validate-input {
   flex-grow: 1;
   margin-right: 8px;
-  padding: 8px 10px;
   font-size: 16px;
   margin-top: 5px;
+  padding: 8px 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: white;
 }
 
 #editingBanner {
@@ -364,3 +367,33 @@ label {
   font-size: 21px;
   font-weight: bold;
 }
+
+#validationOutput {
+  display: flex;
+}
+
+.output-command, .output-parameter {
+  padding: 10px 20px;
+  border-radius: 8px;
+  margin-right: 10px;
+  color: #FFFFFF;
+  font-weight: bolder;
+}
+
+.output-command {
+  background-color: #5B67A5;
+}
+
+.output-parameter {
+  background-color: #238133;
+}
+
+.param-label, .command-label {
+  font-weight: bold;
+  background-color: #e8e8e8;
+  color: #333333;
+  padding: 5px;
+  border-radius: 5px 8px;
+  margin-left: 10px;
+}
+

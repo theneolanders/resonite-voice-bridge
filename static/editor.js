@@ -295,21 +295,23 @@ function parseInputAgainstCommand(inputString) {
   const blocks = getBlockDetails();
   let inputParts = inputString.toLowerCase().split(' ');
 
-  let output = {};
+  const output = {
+    error: null,
+    command: null,
+    params: [],
+  };
 
   for (blockId in blocks) {
-    output = {};
-
     const containerBlock = blocks[blockId];
 
     const wakeWordIndex = inputParts.indexOf(containerBlock.fields.wake_word.toLowerCase());
     console.log('Wake word index:', wakeWordIndex);
     if (wakeWordIndex === -1 && !containerBlock.fields.wake_word_optional) {
       if (!containerBlock.fields.wake_word_optional) {
-        output = {
-          'error': 'Wake word not found',
-          'user input': inputParts[0],
-          'valid wake word': containerBlock.fields.wake_word
+        output['error'] = {
+          msg: 'Wake word not found',
+          input: inputParts[0],
+          valid: containerBlock.fields.wake_word
         }
         console.log('Invalid wake word');
         break;
@@ -337,15 +339,19 @@ function parseInputAgainstCommand(inputString) {
           output['command'] = block.fields.command_name;
           inputPartsIndex += triggerParts.length;
         } else if (!block.fields.optional) {
-          output = {
-            'error': 'User input does not match',
-            'user input': inputTriggerText,
-            'valid trigger': triggerText
+          output['error'] = {
+            msg: 'User input does not match',
+            input: inputTriggerText,
+            valid: triggerText
           }
           i = containerBlock.children.length;
         }
       } else if (block.type === 'parameter_block') {
-        output[block.fields.name] = inputParts.slice(inputPartsIndex, inputPartsIndex + block.fields.len).join(' ');
+        output['params'].push({
+          name: block.fields.name,
+          value: inputParts.slice(inputPartsIndex, inputPartsIndex + block.fields.len).join(' '),
+          type: block.fields.type
+        });
         inputPartsIndex += block.fields.len;
       } else if (block.type === 'text_block') {
         const textBlockText = block.fields.text.toLowerCase();
@@ -357,10 +363,10 @@ function parseInputAgainstCommand(inputString) {
 
         if (textBlockText !== inputTextBlockText) {
           if (!block.fields.optional) {
-            output = {
-              'error': 'User input does not match',
-              'user input': inputTextBlockText,
-              'valid text': textBlockText
+            output['error'] = {
+              msg: 'User input does not match',
+              input: inputTextBlockText,
+              valid: textBlockText
             }
             i = containerBlock.children.length;
           }
@@ -386,10 +392,10 @@ function parseInputAgainstCommand(inputString) {
 
         if (!foundMatch) {
           if (!block.fields.optional) {
-            output = {
-              'error': 'User input does not match any elements in OR text block',
-              'user input': inputParts[inputPartsIndex],
-              'valid options': textBlocks.join(', ')
+            output['error'] = {
+              msg: 'User input does not match any elements in OR text block',
+              input: inputParts[inputPartsIndex],
+              valid: textBlocks.join(', ')
             }
             i = containerBlock.children.length;
           }
@@ -412,9 +418,11 @@ function parseInputAgainstCommand(inputString) {
 
         if (!foundMatch) {
           output = {
-            'error': 'User input does not match any elements in multi-trigger command block',
-            'user input': inputParts[inputPartsIndex],
-            'valid options': triggerBlocks.join(', ')
+            error: {
+              msg: 'User input does not match any elements in OR trigger block',
+              input: inputParts[inputPartsIndex],
+              valid: triggerBlocks.join(', ')
+            }
           }
           i = containerBlock.children.length;
         }
@@ -437,11 +445,28 @@ document.getElementById('validate-btn').addEventListener('click', () => {
 
   output = parseInputAgainstCommand(inputString);
 
-  for (const [key, value] of Object.entries(output)) {
-    outputString += `${key}: ${value}\n`;
+  console.log(output);
+
+  if (output.error) {
+    outputString = `
+      <div class="output-error">
+        <p style="color: red; font-weight: bold">An error was encountered while parsing the input:</p>
+        <p><span style="font-weight: bold">Error:</span> ${output.error.msg}</p>
+        <p><span style="font-weight: bold">Input:</span> ${output.error.input}</p>
+        <p><span style="font-weight: bold">Valid Input:</span> ${output.error.valid}</p>
+      </div>
+    `;
+  } else {
+    if (output.command) {
+      outputString += `<div class="output-command">Command <span class="command-label">${output.command}</span></div>`;
+    }
+
+    for (let i = 0; i < output.params.length; i++) {
+      outputString += `<div class="output-parameter">${output.params[i].name} <span class="param-label ${output.type === 'number' ? 'param-number' : ''}">${output.params[i].value}</span></div>`;
+    }
   }
 
-  document.getElementById('output').innerText = outputString;
+  document.getElementById('validationOutput').innerHTML = outputString;
 });
 
 function updateSavedCommandsDropdown() {
