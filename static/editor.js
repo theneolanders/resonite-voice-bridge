@@ -215,7 +215,7 @@ function getBlockDetails() {
         id: block.id,
         type: block.type,
         fields: {
-          wake_word: workspace.getBlockById(block.id).getFieldValue('WAKE_WORD'),
+          wake_word: stripPunctuationWebsocket(workspace.getBlockById(block.id).getFieldValue('WAKE_WORD')),
           wake_word_optional: workspace.getBlockById(block.id).getFieldValue('WAKE_WORD_OPTIONAL') === 'TRUE' ? true : false
         },
         children: []
@@ -227,7 +227,7 @@ function getBlockDetails() {
         type: block.type,
         fields: {
           command_name: workspace.getBlockById(block.id).getFieldValue('COMMAND_NAME'),
-          trigger: workspace.getBlockById(block.id).getFieldValue('TRIGGER'),
+          trigger: stripPunctuationWebsocket(workspace.getBlockById(block.id).getFieldValue('TRIGGER')),
         }
       })
     } else if (block.type === 'no_trigger_command_block') {
@@ -253,7 +253,7 @@ function getBlockDetails() {
         id: block.id,
         type: block.type,
         fields: {
-          text: workspace.getBlockById(block.id).getFieldValue('FILLER_TEXT'),
+          text: stripPunctuationWebsocket(workspace.getBlockById(block.id).getFieldValue('FILLER_TEXT')),
           optional: workspace.getBlockById(block.id).getFieldValue('OPTIONAL') === 'TRUE' ? true : false,
         }
       })
@@ -270,7 +270,7 @@ function getBlockDetails() {
     } else if (block.type === 'multi_text_text_block') {
       const currentMultiTextBlockIndex = organizedBlocks[currentContainerBlockId].children.findIndex(block => block.id === currentMultiTextBlockId);
       organizedBlocks[currentContainerBlockId].children[currentMultiTextBlockIndex].fields.text_blocks.push(
-        workspace.getBlockById(block.id).getFieldValue('OR_TEXT')
+        stripPunctuationWebsocket(workspace.getBlockById(block.id).getFieldValue('OR_TEXT'))
       )
     } else if (block.type === 'multi_trigger_command_block') {
       organizedBlocks[currentContainerBlockId].children.push({
@@ -285,7 +285,7 @@ function getBlockDetails() {
     } else if (block.type === 'multi_trigger_command_text_block') {
       const currentMultiTriggerCommandBlockIndex = organizedBlocks[currentContainerBlockId].children.findIndex(block => block.id === currentMultiTriggerCommandBlockId);
       organizedBlocks[currentContainerBlockId].children[currentMultiTriggerCommandBlockIndex].fields.trigger_blocks.push(
-        workspace.getBlockById(block.id).getFieldValue('TRIGGER_TEXT')
+        stripPunctuationWebsocket(workspace.getBlockById(block.id).getFieldValue('TRIGGER_TEXT'))
       );
     }
   });
@@ -535,7 +535,7 @@ document.getElementById('validate-btn').addEventListener('click', () => {
   let outputString = '';
   const blocks = workspace.getAllBlocks(false);
 
-  const inputString = document.getElementById('validate-input').value;
+  const inputString = stripPunctuationWebsocket(document.getElementById('validate-input').value);
 
   output = testEditorContents(inputString);
 

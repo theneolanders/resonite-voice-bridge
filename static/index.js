@@ -222,6 +222,11 @@ function stripPunctuation(text) {
   return text.replace(/[^a-zA-Z0-9 ]/g, '');
 }
 
+function stripPunctuationWebsocket(text) {
+  const regex = /[^\w\s]/g;
+  return text.replace(regex, '');
+}
+
 function renderWordPairs() {
   const wordPairList = document.getElementById('wordPairList');
   wordPairList.innerHTML = '';
@@ -493,13 +498,13 @@ function formatWebsocketCommand(details) {
   }
   for (let i = 0; i < details.params.length; i++) {
     if (i > 0) outputString += '>'
-    outputString += `${details.params[i].name}=${details.params[i].value}`;
+    outputString += `${details.params[i].name}=${details.params[i].value}>`;
   }
   return outputString;
 }
 
 function testTranscriptCommands() {
-  const preparedTranscript = stripPunctuation(transcript);
+  const preparedTranscript = stripPunctuationWebsocket(transcript);
   const results = testAllCommands(preparedTranscript);
   if (results.success) {
     addCommandLogEntry(results);
