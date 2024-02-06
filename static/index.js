@@ -118,7 +118,8 @@ function init() {
 function loadSetings() {
   wordReplacementEnabled = localStorage.getItem('wordReplacementEnabled') === 'true';
   wordReplacementCheckbox.checked = wordReplacementEnabled;
-  wordDictionary = JSON.parse(localStorage.getItem('wordDictionary') || {});
+  wordDictionary = localStorage.getItem('wordDictionary') || '{}';
+  wordDictionary = JSON.parse(wordDictionary);
   renderWordPairs();
 
   debugModeEnabled = localStorage.getItem('debugModeEnabled') === 'true';
