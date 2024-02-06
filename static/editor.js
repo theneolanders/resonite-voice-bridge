@@ -14,13 +14,13 @@ Blockly.Blocks['comment_block'] = {
 Blockly.Blocks['container_block'] = {
   init: function () {
     this.appendDummyInput()
-      .appendField('Wake word')
+      .appendField('Wake word(s)')
       .appendField(new Blockly.FieldTextInput('Jarvis'), 'WAKE_WORD')
       .appendField('Optional')
       .appendField(new Blockly.FieldCheckbox('FALSE'), 'WAKE_WORD_OPTIONAL');
     this.appendStatementInput('CONTENT')
     this.setColour('#444444');
-    this.setTooltip('The top level block for a command. Requires at least one command block.');
+    this.setTooltip('The top level block for a command. Requires at least one command block. The wake word can be one or more words.');
     this.contextMenu = false;
     this.deletable_ = false;
     this.movable_ = false;
@@ -400,19 +400,19 @@ function parseInputAgainstCommand(inputString, blocks) {
   for (blockId in blocks) {
     const containerBlock = blocks[blockId];
 
-    const wakeWordIndex = inputParts.indexOf(containerBlock.fields.wake_word.toLowerCase());
-    if (wakeWordIndex === -1 && !containerBlock.fields.wake_word_optional) {
+    if (inputString.toLowerCase().indexOf(containerBlock.fields.wake_word.toLowerCase()) === -1) {
       if (!containerBlock.fields.wake_word_optional) {
         output['error'] = {
-          msg: 'Wake word not found',
+          msg: 'Wake word(s) not found',
           input: inputParts[0],
           valid: containerBlock.fields.wake_word
         }
         break;
       }
-    } else {
-      inputParts = inputParts.slice(wakeWordIndex + 1, inputParts.length);
     }
+
+    const wakeWord = containerBlock.fields.wake_word.toLowerCase();
+    let inputParts = inputString.toLowerCase().slice(inputString.toLowerCase().indexOf(wakeWord) + wakeWord.length + 1, inputString.length).split(' ');
 
     let inputPartsIndex = 0;
 
