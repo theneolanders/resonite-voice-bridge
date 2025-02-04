@@ -209,6 +209,7 @@ function changeLanguage() {
   if (micEnabled) toggleMic();
   recognition.lang = langSelect.value;
   sendEvent("[lang=" + langSelect.value + "]");
+  selectedLanguage = langSelect.value;
   saveSettings();
   const timeout = setTimeout(() => {
     if (micWasEnabled) toggleMic();
