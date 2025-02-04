@@ -40,7 +40,16 @@ const removePunctuationCheckbox = document.getElementById('removePunctuationChec
 let outputStreaming = true;
 const outputStreamingCheckbox = document.getElementById('outputStreamingCheckbox');
 
+let sendEvents = true;
+const sendEventsCheckbox = document.getElementById('sendEventsCheckbox');
+
 let wordDictionary = {};
+
+function sendEvent(event) {
+  if (sendEvents) {
+    websocket.send(event);
+  }
+}
 
 function init() {
   output = document.getElementById("output");
@@ -58,7 +67,7 @@ function init() {
   clearBtn.addEventListener('click', clearTranscript);
   wordReplacementCheckbox.addEventListener('change', () => {
     wordReplacementEnabled = wordReplacementCheckbox.checked;
-    websocket.send(wordReplacementEnabled ? '[replacementEnabled]' : '[replacementDisabled]');
+    sendEvent(wordReplacementEnabled ? '[replacementEnabled]' : '[replacementDisabled]');
     saveSettings();
   });
 
@@ -69,29 +78,29 @@ function init() {
     confidenceThresholdInputWrapper.style.display = useConfidenceThreshold ? "block" : "none";
     document.getElementById("confidenceValue").style.display = useConfidenceThreshold || debugModeEnabled ? "block" : "none";
 
-    if (debugModeEnabled) websocket.send('[debugEnabled]');
-    else websocket.send('[debugDisabled]');
+    if (debugModeEnabled) sendEvent('[debugEnabled]');
+    else sendEvent('[debugDisabled]');
     saveSettings();
   });
 
   customCommandsCheckbox.addEventListener('change', () => {
     customCommmandsEnabled = customCommandsCheckbox.checked;
-    if (customCommmandsEnabled) websocket.send('[customCommandsEnabled]');
-    else websocket.send('[customCommandsDisabled]');
+    if (customCommmandsEnabled) sendEvent('[customCommandsEnabled]');
+    else sendEvent('[customCommandsDisabled]');
     saveSettings();
   })
 
   removePunctuationCheckbox.addEventListener('change', () => {
     removePunctuation = removePunctuationCheckbox.checked;
-    if (removePunctuation) websocket.send('[removePunctuationEnabled]');
-    else websocket.send('[removePunctuationDisabled]');
+    if (removePunctuation) sendEvent('[removePunctuationEnabled]');
+    else sendEvent('[removePunctuationDisabled]');
     saveSettings();
   });
 
   outputStreamingCheckbox.addEventListener('change', () => {
     outputStreaming = outputStreamingCheckbox.checked;
-    if (outputStreaming) websocket.send('[outputStreamingEnabled]');
-    else websocket.send('[outputStreamingDisabled]');
+    if (outputStreaming) sendEvent('[outputStreamingEnabled]');
+    else sendEvent('[outputStreamingDisabled]');
     saveSettings();
   });
 
@@ -100,12 +109,17 @@ function init() {
     setUseConfidenceThreshold();
     saveSettings();
   });
+  
+  sendEventsCheckbox.addEventListener('change', () => {
+    sendEvents = sendEventsCheckbox.checked;
+    saveSettings();
+  });
 
   confidenceThresholdInput.addEventListener('input', () => {
     const prevValue = confidenceThreshold;
     if (prevValue === parseFloat(confidenceThresholdInput.value)) return;
     confidenceThreshold = parseFloat(confidenceThresholdInput.value);
-    if (!isNaN(confidenceThreshold)) websocket.send('[setConfidence=' + confidenceThreshold + ']');
+    if (!isNaN(confidenceThreshold)) sendEvent('[setConfidence=' + confidenceThreshold + ']');
     saveSettings();
   });
 
@@ -145,6 +159,9 @@ function loadSetings() {
 
   outputStreaming = localStorage.getItem('outputStreaming') === 'true';
   outputStreamingCheckbox.checked = outputStreaming;
+  
+  sendEvents = localStorage.getItem('sendEvents') !== 'false';
+  sendEventsCheckbox.checked = sendEvents;
 }
 
 function saveSettings() {
@@ -157,6 +174,7 @@ function saveSettings() {
   localStorage.setItem('selectedLanguage', selectedLanguage);
   localStorage.setItem('removePunctuation', removePunctuation);
   localStorage.setItem('outputStreaming', outputStreaming);
+  localStorage.setItem('sendEvents', sendEvents);
 }
 
 function initializeRecognition() {
@@ -190,7 +208,7 @@ function changeLanguage() {
   const micWasEnabled = micEnabled;
   if (micEnabled) toggleMic();
   recognition.lang = langSelect.value;
-  websocket.send("[lang=" + langSelect.value + "]");
+  sendEvent("[lang=" + langSelect.value + "]");
   saveSettings();
   const timeout = setTimeout(() => {
     if (micWasEnabled) toggleMic();
@@ -210,7 +228,7 @@ function updateMic() {
   }
   else recognition.stop();
   document.getElementById("micStatus").innerHTML = micEnabled ? '<span style="color: green;">Listening</span>' : '<span style="color: red;">Not Listening</span>';
-  websocket.send(micEnabled ? "[enabled] " : "[disabled]");
+  sendEvent(micEnabled ? "[enabled] " : "[disabled]");
   saveSettings();
 }
 
@@ -291,7 +309,7 @@ function onSpeechRecognized(e) {
 
     if (customCommmandsEnabled) testTranscriptCommands();
 
-    if (debugModeEnabled) websocket.send('[debugConfidence=' + recognized.confidence.toFixed(2) + ']');
+    if (debugModeEnabled) sendEvent('[debugConfidence=' + recognized.confidence.toFixed(2) + ']');
   }
 }
 
@@ -299,7 +317,7 @@ function onSpeechEnded() {
   if (micEnabled) recognition.start();
   if (transcript.length) {
     if (!outputStreaming) websocket.send(transcript);
-    websocket.send('[speechEnded]');
+    sendEvent('[speechEnded]');
   }
   transcript = '';
   clearedSection = '';
@@ -347,52 +365,52 @@ function onMessage(event) {
   } else if (event.data.startsWith('confidence=')) {
     confidenceThreshold = parseFloat(event.data.substring(11, event.data.length));
     confidenceThresholdInput.value = confidenceThreshold;
-    websocket.send('[changedConfidence=' + confidenceThreshold + ']');
+    sendEvent('[changedConfidence=' + confidenceThreshold + ']');
   } else if (event.data === 'replacementEnable') {
     wordReplacementEnabled = true;
-    websocket.send('[replacementEnabled]');
+    sendEvent('[replacementEnabled]');
     saveSettings();
   } else if (event.data === 'replacementDisable') {
     wordReplacementEnabled = false;
-    websocket.send('[replacementDisabled]');
+    sendEvent('[replacementDisabled]');
     saveSettings();
   } else if (event.data === 'replacementToggle') {
     wordReplacementEnabled = !wordReplacementEnabled;
-    if (wordReplacementEnabled) websocket.send('[replacementEnabled]');
-    else websocket.send('[replacementDisabled]');
+    if (wordReplacementEnabled) sendEvent('[replacementEnabled]');
+    else sendEvent('[replacementDisabled]');
     saveSettings();
   } else if (event.data === 'removePunctuationEnable') {
     removePunctuation = true;
-    websocket.send('[removePunctuationEnabled]');
+    sendEvent('[removePunctuationEnabled]');
   } else if (event.data === 'removePunctuationDisable') {
     removePunctuation = false;
-    websocket.send('[removePunctuationDisabled]');
+    sendEvent('[removePunctuationDisabled]');
   } else if (event.data === 'removePunctuationToggle') {
     removePunctuation = !removePunctuation;
-    if (removePunctuation) websocket.send('[removePunctuationEnabled]');
-    else websocket.send('[removePunctuationDisabled]');
+    if (removePunctuation) sendEvent('[removePunctuationEnabled]');
+    else sendEvent('[removePunctuationDisabled]');
   } else if (event.data === 'outputStreamingEnable') {
     outputStreaming = true;
-    websocket.send('[outputStreamingEnabled]');
+    sendEvent('[outputStreamingEnabled]');
   } else if (event.data === 'outputStreamingDisable') {
     outputStreaming = false;
-    websocket.send('[outputStreamingDisabled]');
+    sendEvent('[outputStreamingDisabled]');
   } else if (event.data === 'outputStreamingToggle') {
     outputStreaming = !outputStreaming;
-    if (outputStreaming) websocket.send('[outputStreamingEnabled]');
-    else websocket.send('[outputStreamingDisabled]');
+    if (outputStreaming) sendEvent('[outputStreamingEnabled]');
+    else sendEvent('[outputStreamingDisabled]');
   } else if (event.data === 'customCommandsEnable') {
     customCommandsEnabled = true;
-    websocket.send('[customCommandsEnabled]');
+    sendEvent('[customCommandsEnabled]');
     saveSettings();
   } else if (event.data === 'customCommandsDisable') {
     customCommandsEnabled = false;
-    websocket.send('[customCommandsDisabled]');
+    sendEvent('[customCommandsDisabled]');
     saveSettings();
   } else if (event.data === 'customCommandsToggle') {
     customCommandsEnabled = !customCommandsEnabled;
-    if (customCommandsEnabled) websocket.send('[customCommandsEnabled]');
-    else websocket.send('[customCommandsDisabled]');
+    if (customCommandsEnabled) sendEvent('[customCommandsEnabled]');
+    else sendEvent('[customCommandsDisabled]');
     saveSettings();
   }
 }
@@ -402,8 +420,8 @@ function setUseConfidenceThreshold() {
   confidenceThresholdWrapper.style.display = useConfidenceThreshold || debugModeEnabled ? "block" : "none";
   confidenceThresholdInputWrapper.style.display = useConfidenceThreshold ? "block" : "none";
   document.getElementById("confidenceValue").style.display = useConfidenceThreshold || debugModeEnabled ? "block" : "none";
-  if (useConfidenceThreshold) websocket.send('[enableConfidenceThreshold]');
-  else websocket.send('[disableConfidenceThreshold]');
+  if (useConfidenceThreshold) sendEvent('[enableConfidenceThreshold]');
+  else sendEvent('[disableConfidenceThreshold]');
   saveSettings();
 }
 
@@ -414,8 +432,8 @@ function setDebugMode() {
   confidenceThresholdInputWrapper.style.display = useConfidenceThreshold ? "block" : "none";
   document.getElementById("confidenceValue").style.display = useConfidenceThreshold || debugModeEnabled ? "block" : "none";
 
-  if (debugModeEnabled) websocket.send('[debugEnabled]');
-  else websocket.send('[debugDisabled]');
+  if (debugModeEnabled) sendEvent('[debugEnabled]');
+  else sendEvent('[debugDisabled]');
   saveSettings();
 }
 
@@ -423,7 +441,7 @@ function clearTranscript() {
   clearedSection = transcript;
   manuallyCleared = true;
   document.getElementById("sttOutput").innerHTML = '';
-  websocket.send("[cleared]");
+  sendEvent("[cleared]");
 }
 
 function onError(event) {
